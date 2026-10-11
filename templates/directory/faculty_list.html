@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Faculty Directory - ICCT Consultations{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header & Search Filter -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-icct-navy">Faculty Directory</h1>
+                <p class="text-sm text-slate-500">Find instructors, advisers, and department chairs to schedule consultation</p>
+            </div>
+        </div>
+
+        <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="md:col-span-2">
+                <input type="text" name="q" value="{{ query }}" placeholder="Search by faculty name, title, or room..." class="input input-bordered w-full" />
+            </div>
+            <div class="flex gap-2">
+                <select name="dept" class="select select-bordered w-full">
+                    <option value="">All Departments</option>
+                    {% for d in departments %}
+                        <option value="{{ d.id }}" {% if selected_dept == d.id|stringformat:"i" %}selected{% endif %}>{{ d.code }} - {{ d.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn bg-icct-navy text-white hover:bg-icct-blue">Search</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Faculty Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for faculty in faculty_list %}
+            <div class="card bg-white shadow-sm border border-slate-200 hover:border-icct-blue/40 hover:shadow-md transition">
+                <div class="card-body p-6">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <h3 class="font-bold text-lg text-icct-navy leading-snug">{{ faculty.user.get_full_name }}</h3>
+                            <p class="text-xs text-slate-500 font-medium">{{ faculty.title|default:"Faculty Instructor" }}</p>
+                        </div>
+                        {% if faculty.department %}
+                            <span class="badge badge-primary text-white text-xs font-bold">{{ faculty.department.code }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="divider my-2"></div>
+
+                    <div class="space-y-1.5 text-xs text-slate-600">
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            <span>{{ faculty.office_location|default:"Faculty Room" }}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="truncate">{{ faculty.user.email }}</span>
+                        </div>
+                    </div>
+
+                    <div class="card-actions justify-end mt-4">
+                        <a href="{% url 'directory:faculty_detail' faculty.id %}" class="btn btn-sm bg-icct-navy text-white hover:bg-icct-blue w-full font-bold">
+                            View Hours & Book Consultation &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-span-full bg-white p-12 text-center rounded-2xl border border-slate-200 text-slate-400">
+                <p class="text-base font-semibold">No faculty members found matching your search criteria.</p>
+                <a href="{% url 'directory:faculty_list' %}" class="btn btn-sm btn-link text-icct-blue mt-2">Clear search filters</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

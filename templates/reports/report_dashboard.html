@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Consultation Reports & Analytics - ICCT Consultations{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-icct-navy">Consultation Reports & Analytics</h1>
+            <p class="text-sm text-slate-500">Monitor academic advising engagement, attendance rates, and generate formal PDF records</p>
+        </div>
+        <div>
+            <a href="{% url 'reports:export_pdf' %}?dept={{ selected_dept }}&status={{ selected_status }}&category={{ selected_category }}&date_from={{ date_from }}&date_to={{ date_to }}" 
+               class="btn bg-icct-navy hover:bg-icct-blue text-white font-bold shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Export Official PDF Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+        <form method="get" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {% if is_department_admin %}
+                <div>
+                    <label class="label text-xs font-bold text-slate-600">Department</label>
+                    <select name="dept" class="select select-bordered select-sm w-full">
+                        <option value="">All Departments</option>
+                        {% for d in departments %}
+                            <option value="{{ d.id }}" {% if selected_dept == d.id|stringformat:"i" %}selected{% endif %}>{{ d.code }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+
+            <div>
+                <label class="label text-xs font-bold text-slate-600">Status</label>
+                <select name="status" class="select select-bordered select-sm w-full">
+                    <option value="">All Statuses</option>
+                    {% for st_val, st_label in statuses %}
+                        <option value="{{ st_val }}" {% if selected_status == st_val %}selected{% endif %}>{{ st_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="label text-xs font-bold text-slate-600">Category</label>
+                <select name="category" class="select select-bordered select-sm w-full">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"i" %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="label text-xs font-bold text-slate-600">From Date</label>
+                <input type="date" name="date_from" value="{{ date_from }}" class="input input-bordered input-sm w-full" />
+            </div>
+
+            <div>
+                <label class="label text-xs font-bold text-slate-600">To Date</label>
+                <div class="flex gap-2">
+                    <input type="date" name="date_to" value="{{ date_to }}" class="input input-bordered input-sm w-full" />
+                    <button type="submit" class="btn btn-sm bg-icct-navy text-white">Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Summary KPI Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="stat bg-white shadow-sm border border-slate-200 rounded-xl p-4">
+            <div class="stat-title text-xs font-bold text-slate-500">Total Bookings</div>
+            <div class="stat-value text-2xl font-black text-icct-navy">{{ total_count }}</div>
+        </div>
+        <div class="stat bg-white shadow-sm border border-slate-200 rounded-xl p-4">
+            <div class="stat-title text-xs font-bold text-slate-500">Completed Sessions</div>
+            <div class="stat-value text-2xl font-black text-emerald-600">{{ completed_count }}</div>
+            <div class="stat-desc text-xs text-emerald-600 font-bold">{{ completion_rate }}% Completion</div>
+        </div>
+        <div class="stat bg-white shadow-sm border border-slate-200 rounded-xl p-4">
+            <div class="stat-title text-xs font-bold text-slate-500">Confirmed / Active</div>
+            <div class="stat-value text-2xl font-black text-icct-blue">{{ confirmed_count }}</div>
+        </div>
+        <div class="stat bg-white shadow-sm border border-slate-200 rounded-xl p-4">
+            <div class="stat-title text-xs font-bold text-slate-500">No-Shows</div>
+            <div class="stat-value text-2xl font-black text-rose-600">{{ no_show_count }}</div>
+            <div class="stat-desc text-xs text-rose-600 font-bold">{{ no_show_rate }}% No-Show Rate</div>
+        </div>
+        <div class="stat bg-white shadow-sm border border-slate-200 rounded-xl p-4">
+            <div class="stat-title text-xs font-bold text-slate-500">Pending Requests</div>
+            <div class="stat-value text-2xl font-black text-amber-600">{{ pending_count }}</div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card bg-white shadow-sm border border-slate-200">
+        <div class="card-body p-6">
+            <h2 class="card-title text-base font-bold text-icct-navy mb-4">Consultation Records Log</h2>
+
+            <div class="overflow-x-auto">
+                <table class="table table-zebra w-full text-sm">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-700">
+                            <th>Date & Time</th>
+                            <th>Student</th>
+                            <th>Faculty</th>
+                            <th>Category</th>
+                            <th>Mode</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bookings %}
+                            <tr>
+                                <td>
+                                    <div class="font-bold text-slate-900">{{ b.date|date:"M d, Y" }}</div>
+                                    <div class="text-xs text-icct-blue font-semibold">{{ b.start_time|time:"h:i A" }} - {{ b.end_time|time:"h:i A" }}</div>
+                                </td>
+                                <td>
+                                    <div class="font-medium text-slate-900">{{ b.student.user.get_full_name }}</div>
+                                    <div class="text-xs text-slate-400">{{ b.student.student_number }}</div>
+                                </td>
+                                <td>
+                                    <div class="font-medium text-slate-900">{{ b.faculty.user.get_full_name }}</div>
+                                    <div class="text-xs text-slate-400">{{ b.faculty.department.code }}</div>
+                                </td>
+                                <td>{{ b.category.name }}</td>
+                                <td>{{ b.get_mode_display }}</td>
+                                <td>
+                                    <span class="badge {% if b.status == 'COMPLETED' %}badge-success text-white{% elif b.status == 'CONFIRMED' %}badge-info text-white{% elif b.status == 'PENDING' %}badge-warning text-icct-navy{% elif b.status == 'NO_SHOW' %}badge-error text-white{% else %}badge-ghost{% endif %} badge-sm font-semibold">
+                                        {{ b.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'bookings:booking_detail' b.id %}" class="btn btn-xs btn-ghost text-icct-blue">View &rarr;</a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-slate-400 py-10">No consultation records matching current filter criteria.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

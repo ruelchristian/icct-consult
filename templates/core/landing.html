@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome to ICCT Colleges - Faculty Consultation Portal{% endblock %}
+
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Banner with Authentic ICCT Website Theme -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0a315a] via-[#0b233b] to-[#134074] text-white shadow-2xl p-8 md:p-14 border border-icct-yellow/30">
+        <!-- Subtle Background Pattern Accent -->
+        <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-icct-yellow/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
+            <div class="lg:w-7/12 space-y-5">
+                <div class="inline-flex items-center gap-2 bg-[#fad35f] text-[#0a315a] px-3.5 py-1.5 rounded-full text-xs font-black tracking-wider uppercase shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-icct-red inline-block"></span>
+                    Official Academic Portal · ICCT Colleges
+                </div>
+                
+                <h1 class="brand-font text-3xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-tight text-white">
+                    Connect with Your Instructors. <span class="text-icct-yellow">Anytime, Anywhere.</span>
+                </h1>
+
+                <p class="text-slate-200 text-base md:text-lg leading-relaxed max-w-xl font-normal">
+                    The official faculty consultation system for ICCT Colleges students. Book 1-on-1 consultations for capstone projects, academic guidance, coursework clarifications, and thesis defenses.
+                </p>
+
+                <div class="flex flex-wrap gap-4 pt-2">
+                    <a href="{% url 'directory:faculty_list' %}" class="btn bg-icct-yellow hover:bg-icct-yellow-hover text-[#0a315a] font-extrabold border-none shadow-lg px-6 text-base">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Browse Faculty Schedule
+                    </a>
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'accounts:login' %}" class="btn btn-outline text-white hover:bg-white/10 border-white/40 font-bold px-6 text-base">
+                            Sign In to Portal
+                        </a>
+                    {% else %}
+                        <a href="{% url 'core:home' %}" class="btn btn-outline text-white hover:bg-white/10 border-white/40 font-bold px-6 text-base">
+                            Go to My Dashboard &rarr;
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Login / Quick Action Widget -->
+            <div class="lg:w-5/12 w-full flex justify-center">
+                <div class="card bg-white text-slate-800 shadow-2xl p-6 rounded-2xl w-full max-w-md border-t-4 border-icct-yellow">
+                    <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+                        <img src="{% static 'images/icct-logo.png' %}" alt="ICCT Logo" class="w-12 h-12 object-contain" />
+                        <div>
+                            <h3 class="brand-font font-bold text-base text-[#0a315a] leading-tight">ICCT Online Consultation</h3>
+                            <span class="text-xs text-slate-500 font-medium">Safe & Confidential Advising</span>
+                        </div>
+                    </div>
+
+                    <div class="py-4 space-y-3">
+                        <div class="flex items-start gap-3">
+                            <div class="w-7 h-7 rounded-full bg-amber-100 text-[#0a315a] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</div>
+                            <p class="text-xs text-slate-600"><b class="text-slate-800">Find Faculty:</b> Search by instructor name, college department, or subject specialization.</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-7 h-7 rounded-full bg-amber-100 text-[#0a315a] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</div>
+                            <p class="text-xs text-slate-600"><b class="text-slate-800">Reserve Slot:</b> Pick a date on the calendar. Slots are held immediately upon submission.</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-7 h-7 rounded-full bg-amber-100 text-[#0a315a] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">3</div>
+                            <p class="text-xs text-slate-600"><b class="text-slate-800">Get Advice:</b> Meet face-to-face or online, and review guidance logged in your history.</p>
+                        </div>
+                    </div>
+
+                    {% if not user.is_authenticated %}
+                        <div class="pt-2 flex gap-2">
+                            <a href="{% url 'accounts:register' %}" class="btn bg-icct-yellow hover:bg-icct-yellow-hover text-[#0a315a] font-bold border-none flex-1 text-xs shadow">
+                                Register Student
+                            </a>
+                            <a href="{% url 'accounts:login' %}" class="btn bg-[#0a315a] hover:bg-[#233b8c] text-white font-bold flex-1 text-xs">
+                                Student/Faculty Login
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Departments Quick Links (College Cards) -->
+    <div>
+        <div class="text-center mb-8">
+            <span class="badge bg-[#0a315a] text-white text-xs font-bold uppercase tracking-wider mb-1">Academic Programs</span>
+            <h2 class="brand-font text-2xl md:text-3xl font-black text-[#0a315a]">Consultation Across All Colleges</h2>
+            <p class="text-sm text-slate-500 mt-1">Select your college department to find specialized advisers and faculty members</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for dept in departments %}
+                <div class="card bg-white shadow-sm border border-slate-200 hover:border-icct-yellow hover:shadow-md transition p-5 rounded-2xl group">
+                    <div class="w-10 h-10 rounded-xl bg-[#0a315a] group-hover:bg-[#fad35f] text-white group-hover:text-[#0a315a] font-black flex items-center justify-center text-sm mb-3 transition shadow-sm">
+                        {{ dept.code }}
+                    </div>
+                    <h3 class="brand-font font-bold text-base text-[#0a315a] leading-snug">{{ dept.name }}</h3>
+                    <p class="text-xs text-slate-500 mt-1 line-clamp-2">{{ dept.description|default:"Degree programs and specialized faculty consultation." }}</p>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#0a315a] group-hover:text-[#233b8c]">
+                        <span>Browse Faculty</span>
+                        <span>&rarr;</span>
+                    </div>
+                    <a href="{% url 'directory:faculty_list' %}?dept={{ dept.id }}" class="absolute inset-0"></a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Consultation Categories -->
+    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div>
+                <h3 class="brand-font text-xl font-bold text-[#0a315a]">Available Consultation Types</h3>
+                <p class="text-xs text-slate-500">Scheduled time blocks tailored for different academic advising needs</p>
+            </div>
+            <a href="{% url 'directory:faculty_list' %}" class="btn btn-sm bg-[#0a315a] text-white hover:bg-[#233b8c] font-bold">
+                Find Faculty by Category &rarr;
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for cat in categories %}
+                <div class="p-4 rounded-xl border border-slate-100 bg-[#f4f7fa] flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-sm text-[#0a315a]">{{ cat.name }}</div>
+                        <div class="text-xs text-slate-500">{{ cat.description|truncatechars:45 }}</div>
+                    </div>
+                    <span class="badge bg-[#fad35f] text-[#0a315a] font-black text-xs shrink-0 ml-2">
+                        {{ cat.default_duration_minutes }}m
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

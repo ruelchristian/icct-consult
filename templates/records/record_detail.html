@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Consultation Notes #{{ booking.id }} - ICCT Consultations{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto my-6 space-y-6">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2">
+                <h1 class="text-2xl font-bold text-icct-navy">Consultation Record & Advice</h1>
+                <span class="badge {% if record.attendance == 'ATTENDED' %}badge-success text-white{% else %}badge-error text-white{% endif %} font-bold">
+                    {{ record.get_attendance_display }}
+                </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Consultation Date: {{ booking.date|date:"F d, Y" }} · Recorded on {{ record.recorded_at|date:"M d, Y h:i A" }}</p>
+        </div>
+
+        <a href="{% url 'bookings:booking_detail' booking.id %}" class="btn btn-outline border-slate-300 btn-sm">&larr; Back to Consultation</a>
+    </div>
+
+    <!-- Notes Body -->
+    <div class="card bg-white shadow-sm border border-slate-200">
+        <div class="card-body p-6 space-y-5">
+            <!-- Header Meta -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-slate-100 text-sm">
+                <div>
+                    <span class="text-xs text-slate-400 font-bold uppercase block">Faculty Instructor</span>
+                    <span class="font-bold text-slate-900">{{ booking.faculty.user.get_full_name }}</span>
+                    <span class="text-xs text-slate-500 block">{{ booking.faculty.department.name }}</span>
+                </div>
+                <div>
+                    <span class="text-xs text-slate-400 font-bold uppercase block">Student</span>
+                    <span class="font-bold text-slate-900">{{ booking.student.user.get_full_name }}</span>
+                    <span class="text-xs text-slate-500 block">{{ booking.student.student_number }} · {{ booking.student.program }}</span>
+                </div>
+            </div>
+
+            <!-- Advice Given -->
+            <div>
+                <h3 class="text-sm font-bold text-icct-navy flex items-center gap-2 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Faculty Advice & Recommendations
+                </h3>
+                <div class="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl text-slate-800 text-sm whitespace-pre-wrap leading-relaxed">
+                    {{ record.advice_given|default:"No specific recommendations documented." }}
+                </div>
+            </div>
+
+            <!-- Action Items -->
+            {% if record.action_items %}
+                <div>
+                    <h3 class="text-sm font-bold text-icct-navy flex items-center gap-2 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-icct-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Action Points / Next Steps
+                    </h3>
+                    <div class="p-4 bg-blue-50/40 border border-blue-100 rounded-2xl text-slate-800 text-sm whitespace-pre-wrap leading-relaxed">
+                        {{ record.action_items }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Confidential Private Notes (Faculty and Admin Only) -->
+            {% if can_view_private_notes %}
+                <div class="pt-2">
+                    <div class="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-amber-900 uppercase flex items-center gap-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                Confidential Faculty Internal Notes
+                            </span>
+                            <span class="badge badge-warning text-xs font-bold text-icct-navy">Confidential</span>
+                        </div>
+                        <div class="text-sm text-amber-900 whitespace-pre-wrap leading-relaxed">
+                            {{ record.private_notes|default:"No confidential notes recorded." }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

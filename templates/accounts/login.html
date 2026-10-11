@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign In - ICCT Colleges Consultation Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-8">
+    <div class="card bg-white shadow-2xl border-t-4 border-icct-yellow border-x border-b border-slate-200 rounded-2xl">
+        <div class="card-body p-8">
+            <div class="text-center mb-6">
+                <img src="{% static 'images/icct-logo.png' %}" alt="ICCT Colleges Seal" class="w-20 h-20 object-contain mx-auto mb-3 drop-shadow" />
+                <h2 class="brand-font text-2xl font-black text-[#0a315a]">Portal Sign In</h2>
+                <p class="text-xs text-slate-500 mt-1 font-medium">ICCT Colleges Faculty Consultation & Scheduling</p>
+                <div class="h-0.5 w-16 bg-[#fad35f] mx-auto mt-3"></div>
+            </div>
+
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+
+                <div>
+                    <label class="label text-xs font-bold text-slate-700 uppercase tracking-wider">Student ID / Employee ID or Email</label>
+                    {{ form.username_or_email }}
+                    {% if form.username_or_email.errors %}
+                        <p class="text-xs text-error mt-1">{{ form.username_or_email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="label text-xs font-bold text-slate-700 uppercase tracking-wider">Password</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <p class="text-xs text-error mt-1">{{ form.password.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn bg-[#0a315a] hover:bg-[#233b8c] text-white w-full font-bold shadow-md mt-3 tracking-wide">
+                    Sign In to Portal &rarr;
+                </button>
+            </form>
+
+            <div class="divider my-5 text-xs text-slate-400 font-semibold">STUDENT SELF-REGISTRATION</div>
+
+            <div class="text-center">
+                <a href="{% url 'accounts:register' %}" class="btn bg-[#fad35f] hover:bg-[#e8bf48] text-[#0a315a] font-black btn-sm w-full border-none shadow">
+                    Create New Student Account
+                </a>
+            </div>
+
+            <!-- Quick Demo Credentials helper box for reviewers -->
+            <div class="mt-6 p-3 bg-[#f4f7fa] rounded-xl border border-slate-200 text-[11px] text-slate-600 space-y-1">
+                <span class="font-bold text-[#0a315a] block uppercase text-[10px] tracking-wider">Test Demo Accounts:</span>
+                <div><b>Student:</b> <code class="bg-white px-1 py-0.5 rounded text-[#0a315a]">student_juan</code> / <code class="bg-white px-1 py-0.5 rounded">student123</code></div>
+                <div><b>Faculty:</b> <code class="bg-white px-1 py-0.5 rounded text-[#0a315a]">prof_turing</code> / <code class="bg-white px-1 py-0.5 rounded">faculty123</code></div>
+                <div><b>Admin:</b> <code class="bg-white px-1 py-0.5 rounded text-[#0a315a]">admin</code> / <code class="bg-white px-1 py-0.5 rounded">admin123</code></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

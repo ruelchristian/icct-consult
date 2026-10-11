@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Student Registration - ICCT Colleges{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto my-6">
+    <div class="card bg-white shadow-2xl border-t-4 border-icct-yellow border-x border-b border-slate-200 rounded-2xl">
+        <div class="card-body p-8">
+            <div class="text-center mb-6">
+                <img src="{% static 'images/icct-logo.png' %}" alt="ICCT Logo" class="w-16 h-16 object-contain mx-auto mb-2 drop-shadow" />
+                <h2 class="brand-font text-2xl font-black text-[#0a315a]">Student Account Registration</h2>
+                <p class="text-xs text-slate-500 mt-1 font-medium">Create your official student account to book consultations with faculty instructors</p>
+                <div class="h-0.5 w-16 bg-[#fad35f] mx-auto mt-3"></div>
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="alert bg-icct-red text-white text-sm mb-4">
+                    {% for err in form.non_field_errors %}
+                        <p>{{ err }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">First Name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}<p class="text-xs text-error mt-1">{{ form.first_name.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">Last Name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}<p class="text-xs text-error mt-1">{{ form.last_name.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">Student ID Number</label>
+                        {{ form.student_number }}
+                        {% if form.student_number.errors %}<p class="text-xs text-error mt-1">{{ form.student_number.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">School Email Address</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<p class="text-xs text-error mt-1">{{ form.email.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">Department</label>
+                        {{ form.department }}
+                    </div>
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">Degree Program / Course</label>
+                        {{ form.program }}
+                        {% if form.program.errors %}<p class="text-xs text-error mt-1">{{ form.program.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">Year Level</label>
+                        {{ form.year_level }}
+                    </div>
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">Section (e.g. BSIT-3A)</label>
+                        {{ form.section }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="label text-xs font-bold text-slate-700">Contact Number</label>
+                    {{ form.phone_number }}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">Password</label>
+                        {{ form.password }}
+                        {% if form.password.errors %}<p class="text-xs text-error mt-1">{{ form.password.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">Confirm Password</label>
+                        {{ form.password_confirm }}
+                        {% if form.password_confirm.errors %}<p class="text-xs text-error mt-1">{{ form.password_confirm.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn bg-icct-yellow hover:bg-icct-yellow-hover text-[#0a315a] w-full font-black shadow-md mt-4 border-none text-base">
+                    Complete Student Registration &rarr;
+                </button>
+            </form>
+
+            <div class="text-center mt-6 text-sm">
+                Already registered? <a href="{% url 'accounts:login' %}" class="link text-[#0a315a] font-bold">Sign In here</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

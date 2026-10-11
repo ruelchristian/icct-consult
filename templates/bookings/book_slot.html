@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Consultation with Prof. {{ faculty.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto my-6">
+    <div class="card bg-white shadow-xl border border-slate-200">
+        <div class="card-body p-8">
+            <div class="mb-6 border-b border-slate-100 pb-4">
+                <span class="badge badge-warning text-xs font-bold text-icct-navy uppercase">Step 2: Request Consultation</span>
+                <h1 class="text-2xl font-bold text-icct-navy mt-1">Book Session with {{ faculty.user.get_full_name }}</h1>
+                <p class="text-xs text-slate-500">{{ faculty.department.name }} · {{ faculty.office_location|default:"Faculty Office" }}</p>
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-error text-white text-sm mb-4">
+                    {% for err in form.non_field_errors %}
+                        <p>{{ err }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" class="space-y-5">
+                {% csrf_token %}
+                {{ form.time_slot }}
+
+                <!-- 1. Consultation Category -->
+                <div>
+                    <label class="label text-xs font-bold text-slate-700 uppercase">Consultation Category</label>
+                    {{ form.category }}
+                </div>
+
+                <!-- 2. Date Picker (with htmx trigger) -->
+                <div>
+                    <label class="label text-xs font-bold text-slate-700 uppercase">Consultation Date</label>
+                    <input type="date" name="date" id="id_date"
+                           min="{{ today_str }}" max="{{ max_date_str }}"
+                           class="input input-bordered w-full"
+                           hx-get="{% url 'bookings:htmx_slots' faculty.id %}"
+                           hx-target="#available-slots-container"
+                           hx-trigger="change, load"
+                           hx-indicator="#loading-indicator"
+                           required />
+                    {% if form.date.errors %}
+                        <p class="text-xs text-error mt-1">{{ form.date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- 3. Available Time Slots container loaded by htmx -->
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl relative">
+                    <div id="loading-indicator" class="htmx-indicator absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center rounded-2xl z-10">
+                        <span class="loading loading-spinner text-icct-navy"></span>
+                    </div>
+                    <div id="available-slots-container">
+                        <p class="text-xs text-slate-500">Pick a date above to load available time slots for Prof. {{ faculty.user.last_name }}.</p>
+                    </div>
+                </div>
+                {% if form.time_slot.errors %}
+                    <p class="text-xs text-error">{{ form.time_slot.errors.0 }}</p>
+                {% endif %}
+
+                <!-- 4. Mode Selection -->
+                <div>
+                    <label class="label text-xs font-bold text-slate-700 uppercase">Preferred Meeting Mode</label>
+                    {{ form.mode }}
+                </div>
+
+                <!-- 5. Reason & Concerns -->
+                <div>
+                    <label class="label text-xs font-bold text-slate-700 uppercase">Purpose of Consultation</label>
+                    {{ form.reason }}
+                    {% if form.reason.errors %}
+                        <p class="text-xs text-error mt-1">{{ form.reason.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="btn bg-icct-navy hover:bg-icct-blue text-white w-full font-bold shadow-md text-base">
+                        Submit Consultation Request &rarr;
+                    </button>
+                    <p class="text-center text-xs text-slate-400 mt-2">The selected slot will be reserved in Pending status upon submission.</p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

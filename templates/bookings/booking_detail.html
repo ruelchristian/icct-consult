@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}Consultation #{{ booking.id }} - ICCT Consultations{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto my-6 space-y-6">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2">
+                <h1 class="text-2xl font-bold text-icct-navy">Consultation Details</h1>
+                <span class="badge {% if booking.status == 'COMPLETED' %}badge-success text-white{% elif booking.status == 'CONFIRMED' %}badge-info text-white{% elif booking.status == 'PENDING' %}badge-warning text-icct-navy{% elif booking.status == 'NO_SHOW' %}badge-error text-white{% else %}badge-ghost{% endif %} font-bold">
+                    {{ booking.get_status_display }}
+                </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Reference ID: #{{ booking.id }} · Created {{ booking.created_at|date:"M d, Y h:i A" }}</p>
+        </div>
+
+        <div class="flex gap-2">
+            {% if is_student %}
+                <a href="{% url 'bookings:student_bookings' %}" class="btn btn-outline border-slate-300 btn-sm">&larr; Back to List</a>
+            {% elif is_faculty %}
+                <a href="{% url 'bookings:faculty_bookings' %}" class="btn btn-outline border-slate-300 btn-sm">&larr; Back to List</a>
+            {% else %}
+                <a href="{% url 'core:home' %}" class="btn btn-outline border-slate-300 btn-sm">&larr; Back</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Detail Card -->
+    <div class="card bg-white shadow-sm border border-slate-200">
+        <div class="card-body p-6 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-slate-100">
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase">Faculty Member</span>
+                    <p class="text-base font-bold text-slate-900">{{ booking.faculty.user.get_full_name }}</p>
+                    <p class="text-xs text-slate-500">{{ booking.faculty.department.name }}</p>
+                    <p class="text-xs text-slate-500">Email: {{ booking.faculty.user.email }}</p>
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase">Student</span>
+                    <p class="text-base font-bold text-slate-900">{{ booking.student.user.get_full_name }}</p>
+                    <p class="text-xs text-slate-500">Student ID: {{ booking.student.student_number }}</p>
+                    <p class="text-xs text-slate-500">{{ booking.student.program }} ({{ booking.student.section }})</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pb-4 border-b border-slate-100">
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase">Scheduled Date</span>
+                    <p class="text-sm font-bold text-icct-navy">{{ booking.date|date:"l, F d, Y" }}</p>
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase">Time Slot</span>
+                    <p class="text-sm font-bold text-icct-blue">{{ booking.start_time|time:"h:i A" }} - {{ booking.end_time|time:"h:i A" }}</p>
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase">Category</span>
+                    <p class="text-sm font-bold text-slate-800">{{ booking.category.name }}</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-slate-100">
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase">Consultation Mode</span>
+                    <p class="text-sm font-semibold text-slate-800">{{ booking.get_mode_display }}</p>
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase">Venue / Meeting URL</span>
+                    {% if booking.location_or_link and 'http' in booking.location_or_link %}
+                        <p class="text-sm"><a href="{{ booking.location_or_link }}" target="_blank" class="link text-icct-blue font-bold">Open Meeting Room &rarr;</a></p>
+                    {% else %}
+                        <p class="text-sm font-semibold text-slate-800">{{ booking.location_or_link|default:"Department Faculty Office" }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                <span class="text-xs font-bold text-slate-400 uppercase">Purpose / Student Concerns</span>
+                <div class="p-3 bg-slate-50 rounded-xl text-sm text-slate-700 mt-1 whitespace-pre-wrap">{{ booking.reason }}</div>
+            </div>
+
+            {% if booking.declined_reason %}
+                <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-800">
+                    <span class="font-bold block">Declined Reason:</span>
+                    {{ booking.declined_reason }}
+                </div>
+            {% endif %}
+
+            {% if booking.cancellation_reason %}
+                <div class="p-4 bg-slate-100 border border-slate-300 rounded-xl text-sm text-slate-700">
+                    <span class="font-bold block">Cancellation Remarks:</span>
+                    {{ booking.cancellation_reason }}
+                </div>
+            {% endif %}
+
+            <!-- Session Record Link if available -->
+            {% if booking.session_record %}
+                <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+                    <div>
+                        <span class="font-bold text-emerald-900 block text-sm">Consultation Advice & Attendance Documented</span>
+                        <span class="text-xs text-emerald-700">Recorded on {{ booking.session_record.recorded_at|date:"M d, Y h:i A" }} · Outcome: {{ booking.session_record.get_attendance_display }}</span>
+                    </div>
+                    <a href="{% url 'records:record_detail' booking.id %}" class="btn btn-sm btn-success text-white font-bold">
+                        View Session Advice &rarr;
+                    </a>
+                </div>
+            {% endif %}
+
+            <!-- Actions Section -->
+            <div class="pt-4 flex flex-wrap gap-3 justify-end border-t border-slate-100">
+                {% if booking.status == 'PENDING' %}
+                    {% if is_faculty or is_admin %}
+                        <form method="post" action="{% url 'bookings:booking_action' booking.id %}" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="CONFIRM" />
+                            <button type="submit" class="btn bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
+                                Accept Consultation
+                            </button>
+                        </form>
+
+                        <button onclick="document.getElementById('decline-modal').showModal()" class="btn btn-outline btn-error">
+                            Decline Request
+                        </button>
+                    {% endif %}
+
+                    {% if is_student %}
+                        <button onclick="document.getElementById('cancel-modal').showModal()" class="btn btn-outline btn-error">
+                            Cancel My Request
+                        </button>
+                    {% endif %}
+
+                {% elif booking.status == 'CONFIRMED' %}
+                    {% if is_faculty or is_admin %}
+                        <a href="{% url 'records:record_edit' booking.id %}" class="btn bg-icct-gold hover:bg-icct-gold-dark text-icct-navy font-bold border-none">
+                            Document Session Notes & Attendance
+                        </a>
+                    {% endif %}
+
+                    <button onclick="document.getElementById('cancel-modal').showModal()" class="btn btn-outline btn-ghost text-slate-500">
+                        Cancel Session
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Decline Modal -->
+<dialog id="decline-modal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg text-rose-700">Decline Consultation Request</h3>
+        <p class="py-2 text-xs text-slate-500">Please provide a brief reason or suggest an alternative time for the student.</p>
+        <form method="post" action="{% url 'bookings:booking_action' booking.id %}" class="space-y-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="DECLINE" />
+            <textarea name="reason" class="textarea textarea-bordered w-full" rows="3" placeholder="Reason for declining..." required></textarea>
+            <div class="modal-action">
+                <button type="button" onclick="document.getElementById('decline-modal').close()" class="btn btn-ghost">Cancel</button>
+                <button type="submit" class="btn btn-error text-white font-bold">Confirm Decline</button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+<!-- Cancel Modal -->
+<dialog id="cancel-modal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg text-slate-800">Cancel Consultation</h3>
+        <p class="py-2 text-xs text-slate-500">Are you sure you wish to cancel this consultation? This will release the held time slot.</p>
+        <form method="post" action="{% url 'bookings:booking_action' booking.id %}" class="space-y-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="CANCEL" />
+            <textarea name="reason" class="textarea textarea-bordered w-full" rows="2" placeholder="Optional cancellation reason..."></textarea>
+            <div class="modal-action">
+                <button type="button" onclick="document.getElementById('cancel-modal').close()" class="btn btn-ghost">Back</button>
+                <button type="submit" class="btn btn-error text-white font-bold">Yes, Cancel Consultation</button>
+            </div>
+        </form>
+    </div>
+</dialog>
+{% endblock %}

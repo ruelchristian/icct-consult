@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - ICCT Consultations{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Welcome Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div>
+            <h1 class="text-2xl font-bold text-icct-navy">Student Portal</h1>
+            <p class="text-sm text-slate-500">Welcome, {{ user.get_full_name|default:user.username }} (Student ID: {{ student.student_number }})</p>
+            {% if student.program %}
+                <span class="badge badge-outline text-xs mt-1">{{ student.program }} - Year {{ student.year_level }} ({{ student.section }})</span>
+            {% endif %}
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'directory:faculty_list' %}" class="btn bg-icct-gold hover:bg-icct-gold-dark text-icct-navy border-none font-bold shadow">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Book New Consultation
+            </a>
+            <a href="{% url 'bookings:student_bookings' %}" class="btn btn-outline border-slate-300">My Consultation History</a>
+        </div>
+    </div>
+
+    <!-- Active Schedules Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Confirmed Upcoming Sessions -->
+        <div class="card bg-white shadow-sm border border-slate-200">
+            <div class="card-body">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="card-title text-base font-bold text-icct-navy flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                        Upcoming Confirmed Consultations
+                    </h2>
+                    <span class="badge badge-success text-white badge-sm font-semibold">{{ upcoming_bookings|length }}</span>
+                </div>
+
+                {% if upcoming_bookings %}
+                    <div class="divide-y divide-slate-100">
+                        {% for booking in upcoming_bookings %}
+                            <div class="py-3 flex items-center justify-between hover:bg-slate-50 px-2 rounded-lg transition">
+                                <div>
+                                    <div class="font-bold text-slate-900">{{ booking.faculty.user.get_full_name }}</div>
+                                    <div class="text-xs text-slate-500">{{ booking.category.name }} · {{ booking.get_mode_display }}</div>
+                                    <div class="text-xs text-icct-blue font-semibold mt-1">
+                                        {{ booking.date|date:"l, M d, Y" }} · {{ booking.start_time|time:"h:i A" }} - {{ booking.end_time|time:"h:i A" }}
+                                    </div>
+                                </div>
+                                <a href="{% url 'bookings:booking_detail' booking.id %}" class="btn btn-sm btn-ghost text-icct-blue">View Details &rarr;</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="py-8 text-center text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-2 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p class="text-sm">No upcoming confirmed consultations.</p>
+                        <a href="{% url 'directory:faculty_list' %}" class="btn btn-xs btn-link text-icct-navy">Schedule with a faculty member</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pending Approval Requests -->
+        <div class="card bg-white shadow-sm border border-slate-200">
+            <div class="card-body">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="card-title text-base font-bold text-icct-navy flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-amber-500 inline-block animate-pulse"></span>
+                        Pending Requests Awaiting Faculty Review
+                    </h2>
+                    <span class="badge badge-warning text-icct-navy badge-sm font-semibold">{{ pending_bookings|length }}</span>
+                </div>
+
+                {% if pending_bookings %}
+                    <div class="divide-y divide-slate-100">
+                        {% for booking in pending_bookings %}
+                            <div class="py-3 flex items-center justify-between hover:bg-slate-50 px-2 rounded-lg transition">
+                                <div>
+                                    <div class="font-bold text-slate-900">{{ booking.faculty.user.get_full_name }}</div>
+                                    <div class="text-xs text-slate-500">{{ booking.category.name }}</div>
+                                    <div class="text-xs text-amber-700 font-medium mt-1">
+                                        Requested: {{ booking.date|date:"M d, Y" }} at {{ booking.start_time|time:"h:i A" }}
+                                    </div>
+                                </div>
+                                <a href="{% url 'bookings:booking_detail' booking.id %}" class="btn btn-sm btn-ghost text-slate-600">Details &rarr;</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="py-8 text-center text-slate-400">
+                        <p class="text-sm">No pending requests right now.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

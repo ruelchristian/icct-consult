@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Prof. {{ faculty.user.get_full_name }} - Consultation Schedule{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Faculty Profile Header -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl font-bold text-icct-navy">{{ faculty.user.get_full_name }}</h1>
+                {% if faculty.department %}
+                    <span class="badge badge-primary text-white font-bold">{{ faculty.department.code }}</span>
+                {% endif %}
+            </div>
+            <p class="text-sm text-slate-500 font-medium">{{ faculty.title|default:"Faculty Instructor" }} · {{ faculty.department.name }}</p>
+            
+            <div class="flex flex-wrap gap-4 text-xs text-slate-600 mt-3">
+                <div><b>Office / Room:</b> {{ faculty.office_location|default:"Faculty Room" }}</div>
+                <div><b>Email:</b> {{ faculty.user.email }}</div>
+                {% if faculty.consultation_room_link %}
+                    <div><b>Virtual Room:</b> <a href="{{ faculty.consultation_room_link }}" target="_blank" class="link text-icct-blue">Join Meeting Link</a></div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <a href="{% url 'bookings:book_faculty' faculty.id %}" class="btn bg-icct-gold hover:bg-icct-gold-dark text-icct-navy border-none font-bold text-base px-6 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Book Consultation Now
+            </a>
+        </div>
+    </div>
+
+    <!-- Calendar & Weekly Hours Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Interactive FullCalendar Weekly Grid -->
+        <div class="lg:col-span-2 card bg-white shadow-sm border border-slate-200">
+            <div class="card-body p-6">
+                <h2 class="card-title text-base font-bold text-icct-navy mb-2">Weekly Consultation Hours Calendar</h2>
+                <div id="faculty-calendar" class="min-h-[480px]"></div>
+            </div>
+        </div>
+
+        <!-- Weekly Slots Overview & Consultation Topics -->
+        <div class="space-y-6">
+            <div class="card bg-white shadow-sm border border-slate-200">
+                <div class="card-body p-6">
+                    <h3 class="font-bold text-base text-icct-navy mb-3">Published Consultation Hours</h3>
+                    {% if weekly_slots %}
+                        <div class="divide-y divide-slate-100 text-sm">
+                            {% for slot in weekly_slots %}
+                                <div class="py-2.5 flex items-center justify-between">
+                                    <div>
+                                        <div class="font-semibold text-slate-800">{{ slot.get_day_of_week_display }}</div>
+                                        <div class="text-xs text-icct-blue font-bold">
+                                            {{ slot.start_time|time:"h:i A" }} - {{ slot.end_time|time:"h:i A" }}
+                                        </div>
+                                    </div>
+                                    <span class="badge {% if slot.mode == 'ONLINE' %}badge-info text-white{% elif slot.mode == 'F2F' %}badge-secondary text-icct-navy font-bold{% else %}badge-ghost{% endif %} badge-sm">
+                                        {{ slot.get_mode_display }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-xs text-slate-400 italic">No recurring weekly consultation hours published yet.</p>
+                    {% endif %}
+
+                    <div class="pt-4">
+                        <a href="{% url 'bookings:book_faculty' faculty.id %}" class="btn btn-sm bg-icct-navy text-white hover:bg-icct-blue w-full">
+                            Select Date & Time &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="card bg-white shadow-sm border border-slate-200">
+                <div class="card-body p-6">
+                    <h3 class="font-bold text-sm text-icct-navy mb-2">Consultation Categories</h3>
+                    <div class="flex flex-wrap gap-1.5">
+                        {% for cat in categories %}
+                            <span class="badge badge-outline text-xs text-slate-600 font-medium">{{ cat.name }} ({{ cat.default_duration_minutes }}m)</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('faculty-calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'timeGridWeek,timeGridDay'
+            },
+            slotMinTime: '07:00:00',
+            slotMaxTime: '20:00:00',
+            allDaySlot: false,
+            weekends: true,
+            height: 'auto',
+            events: "{% url 'availability:calendar_events_json' faculty.id %}",
+            eventClick: function(info) {
+                alert(info.event.title + '\nLocation/Link: ' + (info.event.extendedProps.location || 'Department office'));
+            }
+        });
+        calendar.render();
+    });
+</script>
+{% endblock %}

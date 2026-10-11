@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Department & Admin Dashboard - ICCT Consultations{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div>
+            <h1 class="text-2xl font-bold text-icct-navy">System & Department Administration</h1>
+            <p class="text-sm text-slate-500">Academic Advising and Consultation Oversight</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'reports:dashboard' %}" class="btn bg-icct-gold hover:bg-icct-gold-dark text-icct-navy font-bold border-none shadow">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Generate Department Reports
+            </a>
+            <a href="/admin/" target="_blank" class="btn bg-icct-navy text-white hover:bg-icct-blue">
+                Django Admin Portal &rarr;
+            </a>
+        </div>
+    </div>
+
+    <!-- Counters Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="stat bg-white shadow-sm border border-slate-200 rounded-xl p-4">
+            <div class="stat-title text-xs font-semibold text-slate-500">Total Bookings</div>
+            <div class="stat-value text-2xl font-black text-icct-navy">{{ total_bookings }}</div>
+            <div class="stat-desc text-xs text-slate-400">All-time consultations</div>
+        </div>
+        <div class="stat bg-white shadow-sm border border-slate-200 rounded-xl p-4">
+            <div class="stat-title text-xs font-semibold text-slate-500">Completed Sessions</div>
+            <div class="stat-value text-2xl font-black text-emerald-600">{{ completed_bookings }}</div>
+            <div class="stat-desc text-xs text-emerald-600 font-medium">Attended with session notes</div>
+        </div>
+        <div class="stat bg-white shadow-sm border border-slate-200 rounded-xl p-4">
+            <div class="stat-title text-xs font-semibold text-slate-500">Pending Requests</div>
+            <div class="stat-value text-2xl font-black text-amber-600">{{ pending_bookings }}</div>
+            <div class="stat-desc text-xs text-amber-600 font-medium">Awaiting faculty approval</div>
+        </div>
+        <div class="stat bg-white shadow-sm border border-slate-200 rounded-xl p-4">
+            <div class="stat-title text-xs font-semibold text-slate-500">No-Shows</div>
+            <div class="stat-value text-2xl font-black text-rose-600">{{ no_shows }}</div>
+            <div class="stat-desc text-xs text-rose-500 font-medium">Marked unexcused absence</div>
+        </div>
+    </div>
+
+    <!-- Recent Bookings Table -->
+    <div class="card bg-white shadow-sm border border-slate-200">
+        <div class="card-body">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="card-title text-lg font-bold text-icct-navy">Recent Consultation Activity</h2>
+                <a href="{% url 'reports:dashboard' %}" class="btn btn-sm btn-ghost text-icct-blue">View Complete Analytics &rarr;</a>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="table table-zebra w-full text-sm">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-700">
+                            <th>Student</th>
+                            <th>Faculty</th>
+                            <th>Category</th>
+                            <th>Date & Time</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in recent_bookings %}
+                            <tr>
+                                <td class="font-semibold">{{ b.student.user.get_full_name }}</td>
+                                <td>{{ b.faculty.user.get_full_name }}</td>
+                                <td>{{ b.category.name }}</td>
+                                <td>{{ b.date|date:"M d, Y" }} {{ b.start_time|time:"h:i A" }}</td>
+                                <td>
+                                    <span class="badge {% if b.status == 'COMPLETED' %}badge-success text-white{% elif b.status == 'CONFIRMED' %}badge-info text-white{% elif b.status == 'PENDING' %}badge-warning text-icct-navy{% elif b.status == 'NO_SHOW' %}badge-error text-white{% else %}badge-ghost{% endif %} badge-sm font-semibold">
+                                        {{ b.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'bookings:booking_detail' b.id %}" class="btn btn-xs btn-ghost text-icct-blue font-bold">Details</a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-slate-400 py-6">No consultation sessions on record yet.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

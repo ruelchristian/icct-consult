@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Weekly Consultation Hours - ICCT Consultations{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-icct-navy">Manage Weekly Consultation Hours</h1>
+            <p class="text-sm text-slate-500">Publish your recurring weekly availability for students to book</p>
+        </div>
+        <a href="{% url 'directory:faculty_detail' faculty.id %}" target="_blank" class="btn btn-outline border-slate-300 btn-sm">
+            Preview My Public Calendar &rarr;
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Add Slot Form -->
+        <div class="card bg-white shadow-sm border border-slate-200">
+            <div class="card-body p-6">
+                <h2 class="card-title text-base font-bold text-icct-navy mb-4">Add Consultation Time Slot</h2>
+
+                <form method="post" class="space-y-3">
+                    {% csrf_token %}
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">Day of the Week</label>
+                        {{ form.day_of_week }}
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="label text-xs font-bold text-slate-700">Start Time</label>
+                            {{ form.start_time }}
+                        </div>
+                        <div>
+                            <label class="label text-xs font-bold text-slate-700">End Time</label>
+                            {{ form.end_time }}
+                        </div>
+                    </div>
+                    {% if form.end_time.errors %}
+                        <p class="text-xs text-error">{{ form.end_time.errors.0 }}</p>
+                    {% endif %}
+
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">Slot Duration (Minutes)</label>
+                        {{ form.slot_duration_minutes }}
+                    </div>
+
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">Consultation Mode</label>
+                        {{ form.mode }}
+                    </div>
+
+                    <div>
+                        <label class="label text-xs font-bold text-slate-700">Room / Office or Meeting URL</label>
+                        {{ form.location_or_link }}
+                    </div>
+
+                    <button type="submit" class="btn bg-icct-navy text-white hover:bg-icct-blue w-full font-bold mt-2">
+                        Add Consultation Slot
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Current Slots Table -->
+        <div class="lg:col-span-2 card bg-white shadow-sm border border-slate-200">
+            <div class="card-body p-6">
+                <h2 class="card-title text-base font-bold text-icct-navy mb-4">Published Weekly Hours ({{ slots|length }})</h2>
+
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700">
+                                <th>Day</th>
+                                <th>Time Interval</th>
+                                <th>Block Duration</th>
+                                <th>Mode</th>
+                                <th>Location / Link</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for slot in slots %}
+                                <tr>
+                                    <td class="font-bold text-slate-900">{{ slot.get_day_of_week_display }}</td>
+                                    <td class="text-icct-blue font-semibold">
+                                        {{ slot.start_time|time:"h:i A" }} - {{ slot.end_time|time:"h:i A" }}
+                                    </td>
+                                    <td>{{ slot.slot_duration_minutes }} mins</td>
+                                    <td>
+                                        <span class="badge {% if slot.mode == 'ONLINE' %}badge-info text-white{% elif slot.mode == 'F2F' %}badge-secondary text-icct-navy font-bold{% else %}badge-ghost{% endif %} badge-xs">
+                                            {{ slot.get_mode_display }}
+                                        </span>
+                                    </td>
+                                    <td class="text-xs text-slate-600 truncate max-w-[150px]">{{ slot.location_or_link|default:"-" }}</td>
+                                    <td>
+                                        <a href="{% url 'availability:delete_slot' slot.id %}" onclick="return confirm('Remove this consultation slot?');" class="btn btn-xs btn-ghost text-error">
+                                            Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-slate-400 py-8">
+                                        No weekly consultation slots added yet. Use the form on the left to set your availability!
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

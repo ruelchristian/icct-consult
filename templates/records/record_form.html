@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Document Consultation Session #{{ booking.id }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto my-6">
+    <div class="card bg-white shadow-xl border border-slate-200">
+        <div class="card-body p-8">
+            <div class="mb-4 border-b border-slate-100 pb-3">
+                <span class="badge badge-success text-white text-xs font-bold uppercase">Post-Session Documentation</span>
+                <h1 class="text-2xl font-bold text-icct-navy mt-1">Consultation Session Record</h1>
+                <p class="text-xs text-slate-500">Student: {{ booking.student.user.get_full_name }} ({{ booking.student.student_number }}) · {{ booking.date|date:"F d, Y" }}</p>
+            </div>
+
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+
+                <div>
+                    <label class="label text-xs font-bold text-slate-700 uppercase">Attendance Outcome</label>
+                    {{ form.attendance }}
+                </div>
+
+                <div>
+                    <label class="label text-xs font-bold text-slate-700 uppercase">
+                        Advice & Guidance Given
+                        <span class="badge badge-xs badge-info text-white normal-case font-normal">Visible to student</span>
+                    </label>
+                    {{ form.advice_given }}
+                    <p class="text-[11px] text-slate-400 mt-1">Summary of feedback, recommendations, or academic advice shared during the session.</p>
+                </div>
+
+                <div>
+                    <label class="label text-xs font-bold text-slate-700 uppercase">
+                        Action Items & Next Steps
+                        <span class="badge badge-xs badge-info text-white normal-case font-normal">Visible to student</span>
+                    </label>
+                    {{ form.action_items }}
+                    <p class="text-[11px] text-slate-400 mt-1">Tasks, deliverables, or follow-up items the student should complete.</p>
+                </div>
+
+                <div class="p-4 bg-amber-50/60 border border-amber-200 rounded-2xl">
+                    <label class="label text-xs font-bold text-amber-900 uppercase">
+                        Confidential Faculty Notes
+                        <span class="badge badge-xs badge-warning text-icct-navy normal-case font-bold">Confidential (Hidden from student)</span>
+                    </label>
+                    {{ form.private_notes }}
+                    <p class="text-[11px] text-amber-800/80 mt-1">Private observations for faculty records and department chairs. Never exposed to students.</p>
+                </div>
+
+                <div class="pt-2 flex gap-3">
+                    <a href="{% url 'bookings:booking_detail' booking.id %}" class="btn btn-ghost flex-1">Cancel</a>
+                    <button type="submit" class="btn bg-icct-navy hover:bg-icct-blue text-white font-bold flex-1">
+                        Save Consultation Record
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
