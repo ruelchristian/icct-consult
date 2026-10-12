@@ -13,6 +13,18 @@ DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = ['*']
 
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'http://localhost',
+    'http://127.0.0.1',
+]
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -78,16 +90,23 @@ DATABASES = {
 }
 
 if os.environ.get('DATABASE_URL'):
-    import urllib.parse
-    url = urllib.parse.urlparse(os.environ['DATABASE_URL'])
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': url.path[1:],
-        'USER': url.username,
-        'PASSWORD': url.password,
-        'HOST': url.hostname,
-        'PORT': url.port or '5432',
-    }
+    try:
+        import dj_database_url
+        DATABASES['default'] = dj_database_url.config(
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    except ImportError:
+        import urllib.parse
+        url = urllib.parse.urlparse(os.environ['DATABASE_URL'])
+        DATABASES['default'] = {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': url.path[1:],
+            'USER': url.username,
+            'PASSWORD': url.password,
+            'HOST': url.hostname,
+            'PORT': url.port or '5432',
+        }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -120,7 +139,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
