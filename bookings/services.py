@@ -142,6 +142,16 @@ def create_booking(student, faculty, category, date, start_time, end_time, mode=
         notification_type=Notification.NotificationType.BOOKING_REQUEST
     )
 
+    # 7. Notify student confirming request submission receipt
+    faculty_name = faculty.user.get_full_name() or faculty.user.username
+    create_and_send_notification(
+        recipient=student.user,
+        booking=booking,
+        title="Consultation Request Submitted",
+        message=f"Your consultation request with Prof. {faculty_name} for {category.name} on {time_str} has been submitted and is pending review.",
+        notification_type=Notification.NotificationType.BOOKING_REQUEST
+    )
+
     return booking
 
 @transaction.atomic
