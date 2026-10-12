@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Offline - ICCT Faculty Consultation Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto my-12 px-4 text-center">
+    <div class="card bg-white shadow-xl border border-slate-200 p-8 rounded-2xl">
+        <div class="w-20 h-20 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.828m2.829 2.828L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 4.243a9 9 0 01-6.364-2.636m0 0L3 21m2.121-6.879a5 5 0 01-1.414-3.535m0 0l2.828-2.829m4.243 4.243a1 1 0 01-1.414-1.414" />
+            </svg>
+        </div>
+
+        <h1 class="text-2xl font-black text-icct-navy brand-font mb-2">You are currently offline</h1>
+        <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+            It looks like your internet connection was temporarily interrupted. The ICCT Consultation Portal has saved your recent session, but you need an active connection to schedule or confirm consultations.
+        </p>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-left mb-6 text-xs text-slate-500 space-y-1">
+            <div class="font-semibold text-slate-700">Quick Tips:</div>
+            <div>• Check your Wi-Fi or mobile data toggle.</div>
+            <div>• Consultation records are securely saved on the ICCT server.</div>
+            <div>• Once reconnected, click the button below to resume.</div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <button onclick="window.location.reload()" class="btn bg-icct-navy hover:bg-[#233b8c] text-white font-bold rounded-lg shadow">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Retry Connection
+            </button>
+            <a href="{% url 'core:home' %}" class="btn btn-outline border-slate-300 text-slate-700 hover:bg-slate-100 rounded-lg">
+                Go to Homepage
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

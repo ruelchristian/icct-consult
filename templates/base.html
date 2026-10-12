@@ -6,8 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ICCT Colleges - Faculty Consultation & Scheduling System{% endblock %}</title>
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{% static 'images/icct-logo.png' %}" />
+    <!-- Favicon & PWA Icons -->
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}" />
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'images/icons/icon-192x192.png' %}" />
+    <link rel="apple-touch-icon" href="{% static 'images/icons/apple-touch-icon.png' %}" />
+
+    <!-- PWA Web App Manifest & Mobile Meta Tags -->
+    <link rel="manifest" href="{% url 'core:manifest' %}" />
+    <meta name="theme-color" content="#0a315a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ICCT Consult" />
+    <meta name="application-name" content="ICCT Consult" />
 
     <!-- Google Fonts: Raleway & Open Sans (Official ICCT Typography) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -147,17 +157,21 @@
 
         <div class="navbar-end flex items-center gap-3">
             {% if user.is_authenticated %}
-                <!-- Notifications Bell -->
-                <a href="{% url 'notifications:list' %}" class="btn btn-ghost btn-circle btn-sm relative text-white hover:text-icct-yellow hover:bg-white/10" title="Notifications">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                <!-- PWA Install Button (Appears when browser triggers beforeinstallprompt) -->
+                <button id="pwa-install-nav-btn" class="hidden btn btn-xs bg-icct-yellow hover:bg-icct-yellow-hover text-icct-navy font-bold rounded-lg border-none shadow items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
-                    {% if unread_notifications_count > 0 %}
-                        <span class="badge badge-xs bg-icct-red text-white font-bold absolute -top-1 -right-1 border-none animate-pulse px-1.5 py-1">
-                            {{ unread_notifications_count }}
-                        </span>
-                    {% endif %}
-                </a>
+                    <span>Install App</span>
+                </button>
+
+                <!-- Notifications Bell with HTMX live polling & push sync -->
+                <div id="live-notification-bell"
+                     hx-get="{% url 'notifications:unread_badge' %}"
+                     hx-trigger="every 15s"
+                     hx-swap="innerHTML">
+                    {% include 'notifications/partials/unread_badge.html' %}
+                </div>
 
                 <!-- User Dropdown -->
                 <div class="dropdown dropdown-end">
@@ -268,6 +282,63 @@
             <p>Copyright &copy; 2026 <b>ICCT Colleges Foundation, Inc.</b> All rights reserved. Web-Based Faculty Consultation and Scheduling System (SA01).</p>
         </div>
     </footer>
+
+    <!-- PWA Service Worker & Install Prompt Scripts -->
+    <script>
+        // 1. Register PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                    .then(function(registration) {
+                        console.log('[PWA] Service Worker active with scope:', registration.scope);
+                    })
+                    .catch(function(err) {
+                        console.warn('[PWA] Service Worker registration failed:', err);
+                    });
+            });
+        }
+
+        // 2. Handle PWA BeforeInstallPrompt (Install App Button)
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('pwa-install-nav-btn');
+            if (installBtn) {
+                installBtn.classList.remove('hidden');
+                installBtn.classList.add('inline-flex');
+                installBtn.addEventListener('click', async function() {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        console.log('[PWA] Install prompt outcome:', outcome);
+                        deferredPrompt = null;
+                        installBtn.classList.add('hidden');
+                    }
+                });
+            }
+        });
+
+        // 3. Request Browser Notification Permission Helper
+        window.requestICCTNotificationPermission = async function() {
+            if (!('Notification' in window)) {
+                alert('This browser does not support desktop notifications.');
+                return false;
+            }
+            if (Notification.permission === 'granted') {
+                return true;
+            }
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                new Notification('ICCT Consultation Alerts Enabled', {
+                    body: 'You will now receive desktop and mobile alerts for consultation updates.',
+                    icon: '/static/images/icons/icon-192x192.png'
+                });
+                return true;
+            }
+            return false;
+        };
+    </script>
 
     {% block extra_scripts %}{% endblock %}
 </body>

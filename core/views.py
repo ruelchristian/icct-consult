@@ -93,3 +93,46 @@ def home_view(request):
             'no_shows': no_shows,
             'recent_bookings': recent_bookings,
         })
+
+def service_worker_view(request):
+    """
+    Serves the PWA Service Worker from the root origin so its scope covers '/'.
+    """
+    from django.conf import settings
+    from django.http import HttpResponse
+
+    sw_path = settings.BASE_DIR / 'static' / 'js' / 'sw.js'
+    try:
+        with open(sw_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except Exception:
+        content = "// Service worker unavailable"
+
+    response = HttpResponse(content, content_type='application/javascript')
+    response['Service-Worker-Allowed'] = '/'
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
+
+def manifest_view(request):
+    """
+    Serves the PWA Web App Manifest.
+    """
+    from django.conf import settings
+    from django.http import HttpResponse
+
+    manifest_path = settings.BASE_DIR / 'static' / 'manifest.json'
+    try:
+        with open(manifest_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except Exception:
+        content = "{}"
+
+    response = HttpResponse(content, content_type='application/manifest+json')
+    response['Cache-Control'] = 'public, max-age=86400'
+    return response
+
+def offline_view(request):
+    """
+    Serves the offline fallback page cached by the service worker.
+    """
+    return render(request, 'offline.html')

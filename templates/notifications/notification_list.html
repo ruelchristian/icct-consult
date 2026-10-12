@@ -9,10 +9,26 @@
             <h1 class="text-2xl font-bold text-icct-navy">System Notifications</h1>
             <p class="text-sm text-slate-500">Alerts regarding your consultation requests, schedule updates, and notes</p>
         </div>
-        <div>
-            <a href="{% url 'notifications:list' %}?read_all=1" class="btn btn-sm btn-ghost text-icct-blue">
+        <div class="flex items-center gap-2">
+            <button type="button" onclick="requestICCTNotificationPermission()" id="push-perm-btn" class="btn btn-sm bg-[#0a315a] hover:bg-[#233b8c] text-white font-bold gap-1.5 shadow">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-icct-yellow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <span id="push-perm-text">Enable Browser Alerts</span>
+            </button>
+            <a href="{% url 'notifications:list' %}?read_all=1" class="btn btn-sm btn-ghost text-icct-navy font-semibold">
                 Mark All as Read
             </a>
+        </div>
+    </div>
+
+    <!-- Push Notification Status Banner -->
+    <div id="push-status-banner" class="bg-blue-50 border border-blue-200 p-4 rounded-xl flex items-center justify-between text-xs text-blue-900">
+        <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-icct-royal shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span><b>Dual Alerts Enabled:</b> All consultation updates trigger instant in-app alerts and official emails. Turn on browser alerts above to get popups on your desktop or phone even when this tab is in the background.</span>
         </div>
     </div>
 
@@ -52,4 +68,23 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var btn = document.getElementById('push-perm-btn');
+        var text = document.getElementById('push-perm-text');
+        if (!('Notification' in window) || !btn || !text) return;
+
+        if (Notification.permission === 'granted') {
+            text.textContent = 'Browser Alerts Active ✓';
+            btn.classList.remove('bg-[#0a315a]', 'hover:bg-[#233b8c]');
+            btn.classList.add('bg-emerald-700', 'hover:bg-emerald-800');
+        } else if (Notification.permission === 'denied') {
+            text.textContent = 'Alerts Blocked in Browser';
+            btn.classList.add('btn-disabled', 'opacity-50');
+        }
+    });
+</script>
 {% endblock %}

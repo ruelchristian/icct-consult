@@ -23,3 +23,15 @@ def mark_read_view(request, notif_id):
     if notif.booking:
         return redirect('bookings:booking_detail', booking_id=notif.booking_id)
     return redirect('notifications:list')
+
+@login_required
+def unread_badge_view(request):
+    """
+    HTMX fragment endpoint: Returns live unread count and latest unread notification.
+    """
+    unread_count = Notification.objects.filter(recipient=request.user, is_read=False).count()
+    latest_unread = Notification.objects.filter(recipient=request.user, is_read=False).first()
+    return render(request, 'notifications/partials/unread_badge.html', {
+        'unread_notifications_count': unread_count,
+        'latest_unread': latest_unread,
+    })

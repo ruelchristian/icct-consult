@@ -1,0 +1,34 @@
+ICCT COLLEGES - Faculty Consultation & Scheduling System
+============================================================
+
+{{ title }}
+
+Hello {{ recipient_name }},
+
+{{ message }}
+
+{% if booking %}
+------------------------------------------------------------
+CONSULTATION DETAILS:
+- Topic / Category: {{ booking.category.name }}
+- Date: {{ booking.date|date:"F d, Y (l)" }}
+- Schedule: {{ booking.start_time|time:"g:i A" }} - {{ booking.end_time|time:"g:i A" }}
+- Mode: {{ booking.get_mode_display }}
+- Venue / Link: {{ booking.location_or_link|default:"To be coordinated" }}
+- Faculty: Prof. {{ booking.faculty.user.get_full_name }}
+- Student: {{ booking.student.user.get_full_name }} ({{ booking.student.student_number }})
+{% if booking.declined_reason %}
+- Reason for Declining: {{ booking.declined_reason }}
+{% elif booking.cancellation_reason %}
+- Reason for Cancellation: {{ booking.cancellation_reason }}
+{% endif %}
+------------------------------------------------------------
+{% endif %}
+
+View consultation details in the portal:
+{{ action_url }}
+
+---
+ICCT Colleges Foundation, Inc.
+College of Computer Studies • Academic Consultation System
+Automated message. Do not reply directly to this email.
