@@ -15,16 +15,16 @@
 
         <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div class="md:col-span-2">
-                <input type="text" name="q" value="{{ query }}" placeholder="Search by faculty name, title, or room..." class="input input-bordered w-full" />
+                <input type="text" name="q" value="{{ query }}" placeholder="Search by faculty name, title, or room..." class="input input-bordered w-full bg-white text-slate-900 border-slate-300 placeholder-slate-400 focus:bg-white focus:text-slate-900 focus:border-icct-navy" />
             </div>
             <div class="flex gap-2">
-                <select name="dept" class="select select-bordered w-full">
+                <select name="dept" class="select select-bordered w-full bg-white text-slate-900 border-slate-300 focus:bg-white focus:text-slate-900 focus:border-icct-navy">
                     <option value="">All Departments</option>
                     {% for d in departments %}
                         <option value="{{ d.id }}" {% if selected_dept == d.id|stringformat:"i" %}selected{% endif %}>{{ d.code }} - {{ d.name }}</option>
                     {% endfor %}
                 </select>
-                <button type="submit" class="btn bg-icct-navy text-white hover:bg-icct-blue">Search</button>
+                <button type="submit" class="btn bg-icct-navy text-white hover:bg-icct-blue shrink-0">Search</button>
             </div>
         </form>
     </div>

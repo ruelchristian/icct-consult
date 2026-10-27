@@ -1,17 +1,20 @@
 from django import forms
 from .models import AvailabilitySlot
 
+INPUT_CLS = 'input input-bordered w-full bg-white text-slate-900 border-slate-300 placeholder-slate-400 focus:bg-white focus:text-slate-900 focus:border-icct-navy'
+SELECT_CLS = 'select select-bordered w-full bg-white text-slate-900 border-slate-300 focus:bg-white focus:text-slate-900 focus:border-icct-navy'
+
 class AvailabilitySlotForm(forms.ModelForm):
     class Meta:
         model = AvailabilitySlot
         fields = ['day_of_week', 'start_time', 'end_time', 'slot_duration_minutes', 'mode', 'location_or_link']
         widgets = {
-            'day_of_week': forms.Select(attrs={'class': 'select select-bordered w-full'}),
-            'start_time': forms.TimeInput(attrs={'class': 'input input-bordered w-full', 'type': 'time'}),
-            'end_time': forms.TimeInput(attrs={'class': 'input input-bordered w-full', 'type': 'time'}),
-            'slot_duration_minutes': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'min': '15', 'step': '15'}),
-            'mode': forms.Select(attrs={'class': 'select select-bordered w-full'}),
-            'location_or_link': forms.TextInput(attrs={'class': 'input input-bordered w-full', 'placeholder': 'e.g. Room 302 or Google Meet link'}),
+            'day_of_week': forms.Select(attrs={'class': SELECT_CLS}),
+            'start_time': forms.TimeInput(attrs={'class': INPUT_CLS, 'type': 'time'}),
+            'end_time': forms.TimeInput(attrs={'class': INPUT_CLS, 'type': 'time'}),
+            'slot_duration_minutes': forms.NumberInput(attrs={'class': INPUT_CLS, 'min': '15', 'step': '15'}),
+            'mode': forms.Select(attrs={'class': SELECT_CLS}),
+            'location_or_link': forms.TextInput(attrs={'class': INPUT_CLS, 'placeholder': 'e.g. Room 302 or Google Meet link'}),
         }
 
     def clean(self):

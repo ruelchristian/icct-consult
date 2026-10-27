@@ -10,10 +10,10 @@
                                value="{{ slot.start_time|time:'H:i' }}-{{ slot.end_time|time:'H:i' }}" 
                                class="peer sr-only" 
                                onchange="document.getElementById('id_time_slot').value = this.value;" />
-                        <div class="p-3 border border-slate-300 rounded-xl text-center transition peer-checked:border-icct-navy peer-checked:bg-icct-navy peer-checked:text-white hover:border-slate-400">
+                        <div class="p-3 border border-slate-300 bg-white text-slate-800 rounded-xl text-center transition peer-checked:border-icct-navy peer-checked:bg-icct-navy peer-checked:text-white peer-checked:ring-2 peer-checked:ring-icct-yellow hover:border-slate-400 shadow-sm">
                             <div class="text-sm font-bold">{{ slot.start_time|time:"h:i A" }}</div>
-                            <div class="text-xs opacity-80">{{ slot.end_time|time:"h:i A" }}</div>
-                            <div class="text-[10px] uppercase font-semibold mt-1 opacity-70">{{ slot.mode }}</div>
+                            <div class="text-xs opacity-90">{{ slot.end_time|time:"h:i A" }}</div>
+                            <div class="text-[10px] uppercase font-bold mt-1 opacity-80">{{ slot.mode }}</div>
                         </div>
                     </label>
                 {% else %}

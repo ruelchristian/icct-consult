@@ -97,9 +97,14 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('faculty-calendar');
+        var isMobile = window.innerWidth < 768;
         var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'timeGridWeek',
-            headerToolbar: {
+            initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
+            headerToolbar: isMobile ? {
+                left: 'prev,next',
+                center: 'title',
+                right: 'timeGridDay,timeGridWeek'
+            } : {
                 left: 'prev,next today',
                 center: 'title',
                 right: 'timeGridWeek,timeGridDay'
@@ -109,12 +114,21 @@
             allDaySlot: false,
             weekends: true,
             height: 'auto',
+            handleWindowResize: true,
             events: "{% url 'availability:calendar_events_json' faculty.id %}",
             eventClick: function(info) {
                 alert(info.event.title + '\nLocation/Link: ' + (info.event.extendedProps.location || 'Department office'));
             }
         });
         calendar.render();
+
+        window.addEventListener('resize', function() {
+            var nowMobile = window.innerWidth < 768;
+            if (nowMobile !== isMobile) {
+                isMobile = nowMobile;
+                calendar.changeView(isMobile ? 'timeGridDay' : 'timeGridWeek');
+            }
+        });
     });
 </script>
 {% endblock %}

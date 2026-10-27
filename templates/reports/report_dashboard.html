@@ -26,7 +26,7 @@
             {% if is_department_admin %}
                 <div>
                     <label class="label text-xs font-bold text-slate-600">Department</label>
-                    <select name="dept" class="select select-bordered select-sm w-full">
+                    <select name="dept" class="select select-bordered select-sm w-full bg-white text-slate-900 border-slate-300 focus:bg-white focus:text-slate-900 focus:border-icct-navy">
                         <option value="">All Departments</option>
                         {% for d in departments %}
                             <option value="{{ d.id }}" {% if selected_dept == d.id|stringformat:"i" %}selected{% endif %}>{{ d.code }}</option>
@@ -37,7 +37,7 @@
 
             <div>
                 <label class="label text-xs font-bold text-slate-600">Status</label>
-                <select name="status" class="select select-bordered select-sm w-full">
+                <select name="status" class="select select-bordered select-sm w-full bg-white text-slate-900 border-slate-300 focus:bg-white focus:text-slate-900 focus:border-icct-navy">
                     <option value="">All Statuses</option>
                     {% for st_val, st_label in statuses %}
                         <option value="{{ st_val }}" {% if selected_status == st_val %}selected{% endif %}>{{ st_label }}</option>
@@ -47,7 +47,7 @@
 
             <div>
                 <label class="label text-xs font-bold text-slate-600">Category</label>
-                <select name="category" class="select select-bordered select-sm w-full">
+                <select name="category" class="select select-bordered select-sm w-full bg-white text-slate-900 border-slate-300 focus:bg-white focus:text-slate-900 focus:border-icct-navy">
                     <option value="">All Categories</option>
                     {% for cat in categories %}
                         <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"i" %}selected{% endif %}>{{ cat.name }}</option>
@@ -57,14 +57,14 @@
 
             <div>
                 <label class="label text-xs font-bold text-slate-600">From Date</label>
-                <input type="date" name="date_from" value="{{ date_from }}" class="input input-bordered input-sm w-full" />
+                <input type="date" name="date_from" value="{{ date_from }}" class="input input-bordered input-sm w-full bg-white text-slate-900 border-slate-300 focus:bg-white focus:text-slate-900 focus:border-icct-navy" />
             </div>
 
             <div>
                 <label class="label text-xs font-bold text-slate-600">To Date</label>
                 <div class="flex gap-2">
-                    <input type="date" name="date_to" value="{{ date_to }}" class="input input-bordered input-sm w-full" />
-                    <button type="submit" class="btn btn-sm bg-icct-navy text-white">Filter</button>
+                    <input type="date" name="date_to" value="{{ date_to }}" class="input input-bordered input-sm w-full bg-white text-slate-900 border-slate-300 focus:bg-white focus:text-slate-900 focus:border-icct-navy" />
+                    <button type="submit" class="btn btn-sm bg-icct-navy text-white hover:bg-icct-royal">Filter</button>
                 </div>
             </div>
         </form>
@@ -97,11 +97,40 @@
     </div>
 
     <!-- Data Table -->
+    <!-- Consultation Records Log -->
     <div class="card bg-white shadow-sm border border-slate-200">
-        <div class="card-body p-6">
-            <h2 class="card-title text-base font-bold text-icct-navy mb-4">Consultation Records Log</h2>
+        <div class="card-body p-4 sm:p-6">
+            <h2 class="card-title text-base font-bold text-icct-navy mb-4">Consultation Records Log ({{ bookings|length }})</h2>
 
-            <div class="overflow-x-auto">
+            <!-- Mobile Card View (shown on < md screens) -->
+            <div class="block md:hidden space-y-3">
+                {% for b in bookings %}
+                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <span class="font-bold text-slate-900 text-sm block">{{ b.student.user.get_full_name }}</span>
+                                <span class="text-xs text-slate-500">{{ b.student.student_number }} · {{ b.student.program|default:"Student" }}</span>
+                            </div>
+                            <span class="badge {% if b.status == 'COMPLETED' %}badge-success text-white{% elif b.status == 'CONFIRMED' %}badge-info text-white{% elif b.status == 'PENDING' %}badge-warning text-icct-navy{% elif b.status == 'NO_SHOW' %}badge-error text-white{% else %}badge-ghost{% endif %} badge-sm font-semibold shrink-0">
+                                {{ b.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="text-xs text-slate-600 space-y-1 pt-1 border-t border-slate-200">
+                            <div><b>Faculty:</b> {{ b.faculty.user.get_full_name }} ({{ b.faculty.department.code }})</div>
+                            <div><b>Schedule:</b> <span class="text-icct-navy font-semibold">{{ b.date|date:"M d, Y" }} · {{ b.start_time|time:"h:i A" }} - {{ b.end_time|time:"h:i A" }}</span></div>
+                            <div><b>Category:</b> {{ b.category.name }} ({{ b.get_mode_display }})</div>
+                        </div>
+                        <div class="pt-2 flex justify-end">
+                            <a href="{% url 'bookings:booking_detail' b.id %}" class="btn btn-xs bg-icct-navy text-white hover:bg-icct-royal">View Details &rarr;</a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-center text-slate-400 py-8 text-xs">No consultation records matching current filter criteria.</div>
+                {% endfor %}
+            </div>
+
+            <!-- Desktop Table View (hidden on < md screens) -->
+            <div class="hidden md:block overflow-x-auto">
                 <table class="table table-zebra w-full text-sm">
                     <thead>
                         <tr class="bg-slate-100 text-slate-700">

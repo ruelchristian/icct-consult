@@ -147,13 +147,13 @@
 
 <!-- Decline Modal -->
 <dialog id="decline-modal" class="modal">
-    <div class="modal-box">
+    <div class="modal-box bg-white text-slate-800">
         <h3 class="font-bold text-lg text-rose-700">Decline Consultation Request</h3>
         <p class="py-2 text-xs text-slate-500">Please provide a brief reason or suggest an alternative time for the student.</p>
         <form method="post" action="{% url 'bookings:booking_action' booking.id %}" class="space-y-3">
             {% csrf_token %}
             <input type="hidden" name="action" value="DECLINE" />
-            <textarea name="reason" class="textarea textarea-bordered w-full" rows="3" placeholder="Reason for declining..." required></textarea>
+            <textarea name="reason" class="textarea textarea-bordered w-full bg-white text-slate-900 border-slate-300 placeholder-slate-400 focus:bg-white focus:text-slate-900 focus:border-icct-navy" rows="3" placeholder="Reason for declining..." required></textarea>
             <div class="modal-action">
                 <button type="button" onclick="document.getElementById('decline-modal').close()" class="btn btn-ghost">Cancel</button>
                 <button type="submit" class="btn btn-error text-white font-bold">Confirm Decline</button>
@@ -164,13 +164,13 @@
 
 <!-- Cancel Modal -->
 <dialog id="cancel-modal" class="modal">
-    <div class="modal-box">
+    <div class="modal-box bg-white text-slate-800">
         <h3 class="font-bold text-lg text-slate-800">Cancel Consultation</h3>
         <p class="py-2 text-xs text-slate-500">Are you sure you wish to cancel this consultation? This will release the held time slot.</p>
         <form method="post" action="{% url 'bookings:booking_action' booking.id %}" class="space-y-3">
             {% csrf_token %}
             <input type="hidden" name="action" value="CANCEL" />
-            <textarea name="reason" class="textarea textarea-bordered w-full" rows="2" placeholder="Optional cancellation reason..."></textarea>
+            <textarea name="reason" class="textarea textarea-bordered w-full bg-white text-slate-900 border-slate-300 placeholder-slate-400 focus:bg-white focus:text-slate-900 focus:border-icct-navy" rows="2" placeholder="Optional cancellation reason..."></textarea>
             <div class="modal-action">
                 <button type="button" onclick="document.getElementById('cancel-modal').close()" class="btn btn-ghost">Back</button>
                 <button type="submit" class="btn btn-error text-white font-bold">Yes, Cancel Consultation</button>

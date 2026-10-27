@@ -27,7 +27,7 @@
                         {{ form.day_of_week }}
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="label text-xs font-bold text-slate-700">Start Time</label>
                             {{ form.start_time }}
@@ -68,7 +68,35 @@
             <div class="card-body p-6">
                 <h2 class="card-title text-base font-bold text-icct-navy mb-4">Published Weekly Hours ({{ slots|length }})</h2>
 
-                <div class="overflow-x-auto">
+                <!-- Mobile Slot Cards (shown on < md screens) -->
+                <div class="block md:hidden space-y-3">
+                    {% for slot in slots %}
+                        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 flex items-center justify-between gap-3">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-slate-900 text-sm">{{ slot.get_day_of_week_display }}</span>
+                                    <span class="badge {% if slot.mode == 'ONLINE' %}badge-info text-white{% elif slot.mode == 'F2F' %}badge-secondary text-icct-navy font-bold{% else %}badge-ghost{% endif %} badge-xs">
+                                        {{ slot.get_mode_display }}
+                                    </span>
+                                </div>
+                                <div class="text-xs text-icct-blue font-bold">
+                                    {{ slot.start_time|time:"h:i A" }} - {{ slot.end_time|time:"h:i A" }} ({{ slot.slot_duration_minutes }}m)
+                                </div>
+                                {% if slot.location_or_link %}
+                                    <div class="text-[11px] text-slate-500 truncate max-w-[200px]">{{ slot.location_or_link }}</div>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'availability:delete_slot' slot.id %}" onclick="return confirm('Remove this consultation slot?');" class="btn btn-sm btn-ghost text-error">
+                                Delete
+                            </a>
+                        </div>
+                    {% empty %}
+                        <div class="text-center text-slate-400 py-6 text-xs">No weekly consultation slots added yet. Use the form above to set your availability!</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Desktop Table View (hidden on < md screens) -->
+                <div class="hidden md:block overflow-x-auto">
                     <table class="table table-zebra w-full text-sm">
                         <thead>
                             <tr class="bg-slate-100 text-slate-700">
