@@ -1,5 +1,5 @@
 // ICCT Colleges - Consultation System Service Worker
-const CACHE_NAME = 'icct-consult-v1';
+const CACHE_NAME = 'icct-consult-v2';
 const PRECACHE_ASSETS = [
   '/',
   '/offline/',

@@ -111,11 +111,21 @@
         .textarea-bordered,
         .select-bordered {
             background-color: #ffffff !important;
+            background: #ffffff !important;
             color: #0f172a !important; /* High-contrast Slate-900 text */
-            border: 1px solid #cbd5e1 !important; /* Visible Slate-300 border */
+            border: 1.5px solid #cbd5e1 !important; /* Visible Slate-300 border */
             opacity: 1 !important;
             font-size: 16px !important; /* Prevents auto-zoom on mobile browsers */
             -webkit-text-fill-color: #0f172a !important;
+            caret-color: #0a315a !important;
+        }
+
+        /* Override DaisyUI internal CSS variables to prevent black backgrounds */
+        .input, .textarea, .select, .input-bordered, .textarea-bordered, .select-bordered {
+            --fallback-b1: #ffffff !important;
+            --fallback-bc: #0f172a !important;
+            --b1: 100% 0 0 !important;
+            --bc: 20% 0.03 240 !important;
         }
 
         @media (min-width: 768px) {

@@ -4,6 +4,27 @@
 {% block title %}Sign In - ICCT Colleges Consultation Portal{% endblock %}
 
 {% block content %}
+<style>
+    /* Unconditional forced visibility for login inputs */
+    #id_username_or_email, #id_password {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        -webkit-text-fill-color: #0f172a !important;
+        caret-color: #0a315a !important;
+        border: 2px solid #cbd5e1 !important;
+        opacity: 1 !important;
+    }
+    #id_username_or_email:focus, #id_password:focus {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        color: #0a315a !important;
+        -webkit-text-fill-color: #0a315a !important;
+        border-color: #0a315a !important;
+        box-shadow: 0 0 0 3px rgba(10, 49, 90, 0.15) !important;
+    }
+</style>
+
 <div class="max-w-md mx-auto my-4 sm:my-8 px-2 sm:px-0">
     <div class="card bg-white shadow-2xl border-t-4 border-icct-yellow border-x border-b border-slate-200 rounded-2xl">
         <div class="card-body p-5 sm:p-8">
@@ -18,22 +39,58 @@
                 {% csrf_token %}
 
                 <div>
-                    <label class="label text-xs font-bold text-slate-700 uppercase tracking-wider">Student ID / Employee ID or Email</label>
-                    {{ form.username_or_email }}
+                    <label for="id_username_or_email" class="label text-xs font-bold text-slate-700 uppercase tracking-wider">Student ID / Employee ID or Email</label>
+                    <input type="text"
+                           name="username_or_email"
+                           id="id_username_or_email"
+                           value="{{ form.username_or_email.value|default:'' }}"
+                           class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 bg-white text-slate-900 placeholder-slate-400 font-medium text-base focus:border-[#0a315a] focus:outline-none focus:ring-2 focus:ring-[#0a315a]/20 transition shadow-sm"
+                           style="background-color: #ffffff !important; color: #0f172a !important; -webkit-text-fill-color: #0f172a !important; caret-color: #0a315a !important;"
+                           placeholder="e.g. 2026-10123 or juandelacruz@icct.edu.ph"
+                           autocomplete="username"
+                           required />
                     {% if form.username_or_email.errors %}
                         <p class="text-xs text-error mt-1">{{ form.username_or_email.errors.0 }}</p>
                     {% endif %}
                 </div>
 
                 <div>
-                    <label class="label text-xs font-bold text-slate-700 uppercase tracking-wider">Password</label>
-                    {{ form.password }}
+                    <div class="flex items-center justify-between">
+                        <label for="id_password" class="label text-xs font-bold text-slate-700 uppercase tracking-wider">Password</label>
+                        <span class="text-[11px] text-slate-400">Click eye to show/hide</span>
+                    </div>
+                    <div class="relative">
+                        <input type="password"
+                               name="password"
+                               id="id_password"
+                               class="w-full px-4 py-3 pr-12 rounded-xl border-2 border-slate-300 bg-white text-slate-900 placeholder-slate-400 font-medium text-base focus:border-[#0a315a] focus:outline-none focus:ring-2 focus:ring-[#0a315a]/20 transition shadow-sm"
+                               style="background-color: #ffffff !important; color: #0f172a !important; -webkit-text-fill-color: #0f172a !important; caret-color: #0a315a !important;"
+                               placeholder="Enter your password"
+                               autocomplete="current-password"
+                               required />
+                        <button type="button"
+                                id="toggle-password-btn"
+                                onclick="togglePasswordVisibility()"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-[#0a315a] p-1.5 rounded-lg focus:outline-none transition cursor-pointer"
+                                title="Show/Hide password"
+                                aria-label="Show or hide password">
+                            <!-- Open Eye Icon -->
+                            <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <!-- Closed Eye Icon (hidden by default) -->
+                            <svg id="eye-off-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                            </svg>
+                        </button>
+                    </div>
                     {% if form.password.errors %}
                         <p class="text-xs text-error mt-1">{{ form.password.errors.0 }}</p>
                     {% endif %}
                 </div>
 
-                <button type="submit" class="btn bg-[#0a315a] hover:bg-[#233b8c] text-white w-full font-bold shadow-md mt-3 tracking-wide">
+                <button type="submit" class="btn bg-[#0a315a] hover:bg-[#233b8c] text-white w-full font-bold shadow-md mt-3 tracking-wide text-base">
                     Sign In to Portal &rarr;
                 </button>
             </form>
@@ -46,14 +103,49 @@
                 </a>
             </div>
 
-            <!-- Quick Demo Credentials helper box for reviewers -->
-            <div class="mt-6 p-3 bg-[#f4f7fa] rounded-xl border border-slate-200 text-[11px] text-slate-600 space-y-1">
-                <span class="font-bold text-[#0a315a] block uppercase text-[10px] tracking-wider">Test Demo Accounts:</span>
-                <div><b>Student:</b> <code class="bg-white px-1 py-0.5 rounded text-[#0a315a]">student_juan</code> / <code class="bg-white px-1 py-0.5 rounded">student123</code></div>
-                <div><b>Faculty:</b> <code class="bg-white px-1 py-0.5 rounded text-[#0a315a]">prof_turing</code> / <code class="bg-white px-1 py-0.5 rounded">faculty123</code></div>
-                <div><b>Admin:</b> <code class="bg-white px-1 py-0.5 rounded text-[#0a315a]">admin</code> / <code class="bg-white px-1 py-0.5 rounded">admin123</code></div>
+            <!-- Quick Demo Credentials helper box with 1-click Auto-fill for convenience -->
+            <div class="mt-6 p-3 bg-[#f4f7fa] rounded-xl border border-slate-200 text-[11px] text-slate-600 space-y-2">
+                <span class="font-bold text-[#0a315a] block uppercase text-[10px] tracking-wider">1-Click Test Demo Accounts:</span>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="fillCredentials('student_juan', 'student123')" class="btn btn-xs bg-white text-[#0a315a] border border-slate-300 hover:bg-slate-100 shadow-sm font-semibold">
+                        Fill Student (Juan)
+                    </button>
+                    <button type="button" onclick="fillCredentials('prof_turing', 'faculty123')" class="btn btn-xs bg-white text-[#0a315a] border border-slate-300 hover:bg-slate-100 shadow-sm font-semibold">
+                        Fill Faculty (Turing)
+                    </button>
+                    <button type="button" onclick="fillCredentials('admin', 'admin123')" class="btn btn-xs bg-white text-[#0a315a] border border-slate-300 hover:bg-slate-100 shadow-sm font-semibold">
+                        Fill Admin (Dean)
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('id_password');
+        const eyeIcon = document.getElementById('eye-icon');
+        const eyeOffIcon = document.getElementById('eye-off-icon');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.add('hidden');
+            eyeOffIcon.classList.remove('hidden');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('hidden');
+            eyeOffIcon.classList.add('hidden');
+        }
+    }
+
+    function fillCredentials(username, password) {
+        const u = document.getElementById('id_username_or_email');
+        const p = document.getElementById('id_password');
+        if (u && p) {
+            u.value = username;
+            p.value = password;
+            u.focus();
+        }
+    }
+</script>
 {% endblock %}

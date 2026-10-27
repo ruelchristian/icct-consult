@@ -4,6 +4,26 @@
 {% block title %}Student Registration - ICCT Colleges{% endblock %}
 
 {% block content %}
+<style>
+    /* Unconditional forced visibility for registration inputs */
+    input, select {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        -webkit-text-fill-color: #0f172a !important;
+        caret-color: #0a315a !important;
+        border: 1.5px solid #cbd5e1 !important;
+        opacity: 1 !important;
+    }
+    input:focus, select:focus {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        color: #0a315a !important;
+        -webkit-text-fill-color: #0a315a !important;
+        border-color: #0a315a !important;
+        box-shadow: 0 0 0 3px rgba(10, 49, 90, 0.15) !important;
+    }
+</style>
 <div class="max-w-2xl mx-auto my-4 sm:my-6 px-2 sm:px-0">
     <div class="card bg-white shadow-2xl border-t-4 border-icct-yellow border-x border-b border-slate-200 rounded-2xl">
         <div class="card-body p-5 sm:p-8">
