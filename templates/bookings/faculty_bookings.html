@@ -4,17 +4,23 @@
 
 {% block content %}
 <div class="space-y-6">
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-icct-navy">Consultation Management</h1>
-            <p class="text-sm text-slate-500">Review student consultation requests, track attendance, and record advising outcomes</p>
+            <h1 class="text-xl sm:text-2xl font-bold text-icct-navy">Consultation Management</h1>
+            <p class="text-xs sm:text-sm text-slate-500">Review student consultation requests, track attendance, and record advising outcomes</p>
         </div>
-        <div class="flex gap-2">
-            <a href="{% url 'availability:manage_slots' %}" class="btn btn-outline border-slate-300 btn-sm">
-                Edit Weekly Hours
+        <div class="flex flex-col sm:flex-row flex-wrap gap-2 w-full lg:w-auto">
+            <a href="{% url 'availability:manage_slots' %}" class="btn btn-outline border-slate-300 btn-sm w-full sm:w-auto justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Edit Weekly Hours</span>
             </a>
-            <a href="{% url 'reports:dashboard' %}" class="btn bg-icct-navy text-white hover:bg-icct-blue btn-sm">
-                Consultation Reports & PDF
+            <a href="{% url 'reports:dashboard' %}" class="btn bg-icct-navy text-white hover:bg-icct-blue btn-sm w-full sm:w-auto justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Consultation Reports & PDF</span>
             </a>
         </div>
     </div>

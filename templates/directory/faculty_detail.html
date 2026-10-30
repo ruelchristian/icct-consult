@@ -5,31 +5,31 @@
 {% block content %}
 <div class="space-y-6">
     <!-- Faculty Profile Header -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-            <div class="flex items-center gap-3">
-                <h1 class="text-2xl font-bold text-icct-navy">{{ faculty.user.get_full_name }}</h1>
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <h1 class="text-xl sm:text-2xl font-bold text-icct-navy break-words">{{ faculty.user.get_full_name }}</h1>
                 {% if faculty.department %}
-                    <span class="badge badge-primary text-white font-bold">{{ faculty.department.code }}</span>
+                    <span class="badge badge-primary text-white font-bold shrink-0">{{ faculty.department.code }}</span>
                 {% endif %}
             </div>
-            <p class="text-sm text-slate-500 font-medium">{{ faculty.title|default:"Faculty Instructor" }} · {{ faculty.department.name }}</p>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium">{{ faculty.title|default:"Faculty Instructor" }} · {{ faculty.department.name }}</p>
             
-            <div class="flex flex-wrap gap-4 text-xs text-slate-600 mt-3">
+            <div class="flex flex-wrap gap-3 sm:gap-4 text-xs text-slate-600 mt-3">
                 <div><b>Office / Room:</b> {{ faculty.office_location|default:"Faculty Room" }}</div>
-                <div><b>Email:</b> {{ faculty.user.email }}</div>
+                <div class="break-all"><b>Email:</b> {{ faculty.user.email }}</div>
                 {% if faculty.consultation_room_link %}
-                    <div><b>Virtual Room:</b> <a href="{{ faculty.consultation_room_link }}" target="_blank" class="link text-icct-blue">Join Meeting Link</a></div>
+                    <div class="break-all"><b>Virtual Room:</b> <a href="{{ faculty.consultation_room_link }}" target="_blank" class="link text-icct-blue">Join Meeting Link</a></div>
                 {% endif %}
             </div>
         </div>
 
-        <div>
-            <a href="{% url 'bookings:book_faculty' faculty.id %}" class="btn bg-icct-gold hover:bg-icct-gold-dark text-icct-navy border-none font-bold text-base px-6 shadow-md">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="w-full md:w-auto">
+            <a href="{% url 'bookings:book_faculty' faculty.id %}" class="btn btn-sm sm:btn-md bg-icct-gold hover:bg-icct-gold-dark text-icct-navy border-none font-bold text-sm sm:text-base px-6 shadow-md w-full md:w-auto justify-center text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 mr-1 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Book Consultation Now
+                <span>Book Consultation Now</span>
             </a>
         </div>
     </div>

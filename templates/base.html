@@ -234,7 +234,7 @@
     <!-- DaisyUI Mobile Drawer Wrapper -->
     <div class="drawer">
         <input id="mobile-nav-drawer" type="checkbox" class="drawer-toggle" />
-        <div class="drawer-content flex flex-col min-h-screen">
+        <div class="drawer-content flex flex-col min-h-screen max-w-full overflow-x-hidden">
 
             <!-- Top Accent Bar: Official ICCT Colors (Gold / Red / Navy) -->
             <div class="h-1.5 top-stripe w-full"></div>
@@ -374,7 +374,7 @@
             {% endif %}
 
             <!-- Main Page Content (with mobile safe bottom padding so bottom bar never obscures it) -->
-            <main class="flex-grow max-w-7xl mx-auto w-full px-4 md:px-8 py-6 pb-24 lg:pb-8">
+            <main class="flex-grow max-w-7xl mx-auto w-full px-3.5 sm:px-4 md:px-8 py-5 sm:py-6 pb-24 lg:pb-8 min-w-0">
                 {% block content %}{% endblock %}
             </main>
 

@@ -4,12 +4,12 @@
 
 {% block content %}
 <div class="space-y-6">
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-icct-navy">My Consultation History</h1>
-            <p class="text-sm text-slate-500">Track and manage your scheduled sessions with faculty members</p>
+            <h1 class="text-xl sm:text-2xl font-bold text-icct-navy">My Consultation History</h1>
+            <p class="text-xs sm:text-sm text-slate-500">Track and manage your scheduled sessions with faculty members</p>
         </div>
-        <a href="{% url 'directory:faculty_list' %}" class="btn bg-icct-gold hover:bg-icct-gold-dark text-icct-navy border-none font-bold shadow">
+        <a href="{% url 'directory:faculty_list' %}" class="btn btn-sm sm:btn-md bg-icct-gold hover:bg-icct-gold-dark text-icct-navy border-none font-bold shadow w-full md:w-auto justify-center">
             + Schedule New Consultation
         </a>
     </div>
