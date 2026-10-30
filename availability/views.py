@@ -64,10 +64,11 @@ def manage_slots_view(request):
     if request.method == 'POST':
         form = AvailabilitySlotForm(request.POST)
         if form.is_valid():
-            slot = form.save(commit=False)
-            slot.faculty = faculty
-            slot.save()
-            messages.success(request, f"Consultation hours for {slot.get_day_of_week_display()} added successfully.")
+            created_slots = form.save_slots(faculty)
+            if len(created_slots) > 1:
+                messages.success(request, f"Consultation hours published across {len(created_slots)} days successfully.")
+            else:
+                messages.success(request, f"Consultation hours for {created_slots[0].get_day_of_week_display()} added successfully.")
             return redirect('availability:manage_slots')
     else:
         form = AvailabilitySlotForm()

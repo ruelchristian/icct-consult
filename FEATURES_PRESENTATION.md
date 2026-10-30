@@ -4,8 +4,8 @@
 
 - **Account Registration:** Register using Student ID, Course, Year Level, Section, and Password.
 - **Faculty Search:** Search professors by name or filter by department.
-- **Weekly Calendar:** View professor's consultation schedule on an interactive calendar.
-- **Live Slot Picker:** Pick a date to load open 30-minute time slots instantly (no page refresh).
+- **Weekly Schedule Banner & Quick Dates:** Shows professor's active consultation days with 1-click quick date buttons.
+- **Live Automatic Slot Loading:** Pre-loads available slots immediately on page load and date change (no page refresh).
 - **Anti Double-Booking:** Automatic database lock prevents two students from picking the same slot.
 - **Mode Selection:** Choose Face-to-Face (shows office room) or Online (shows Google Meet link).
 - **Consultation Categories:** Select topic (Capstone, Subject Clarification, Grades, Counseling).
@@ -18,7 +18,8 @@
 
 ## 2. Teacher (Faculty) Features
 
-- **Weekly Hours Manager:** Add or delete recurring weekly consultation blocks (Day, Time, Mode, Location/Link).
+- **Weekly Hours & 1-Click Presets:** Set single days or bulk presets ("All Weekdays", "Full Weekend", "Every Day") in 1 click.
+- **Strict Virtual Link Validation:** Requires a valid Google Meet or Zoom link when Online mode is selected.
 - **Advising Dashboard:** View today's meetings and pending requests immediately after sign-in.
 - **1-Click Review & Accept:** Review student details and purpose, then accept with one click.
 - **Decline Request:** Decline requests with a required reason sent to the student.

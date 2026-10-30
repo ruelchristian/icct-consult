@@ -9,6 +9,7 @@ class AvailabilitySlot(models.Model):
         THURSDAY = 3, 'Thursday'
         FRIDAY = 4, 'Friday'
         SATURDAY = 5, 'Saturday'
+        SUNDAY = 6, 'Sunday'
 
     class Mode(models.TextChoices):
         FACE_TO_FACE = 'F2F', 'Face-to-Face'

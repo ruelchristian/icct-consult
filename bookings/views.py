@@ -10,6 +10,42 @@ from .forms import BookingCreateForm, ActionReasonForm
 from .services import create_booking, update_booking_status, get_available_slots_for_date
 from directory.models import FacultyProfile, StudentProfile
 
+def get_faculty_schedule_info(faculty):
+    """
+    Helper returning active slots, active day numbers, day names,
+    and upcoming available dates for the next 14 days.
+    """
+    active_slots = faculty.availability_slots.filter(is_active=True).order_by('day_of_week', 'start_time')
+    day_indices = list(dict.fromkeys(active_slots.values_list('day_of_week', flat=True)))
+    
+    day_names_map = {
+        0: 'Monday',
+        1: 'Tuesday',
+        2: 'Wednesday',
+        3: 'Thursday',
+        4: 'Friday',
+        5: 'Saturday',
+        6: 'Sunday',
+    }
+    faculty_days_names = [day_names_map[d] for d in day_indices if d in day_names_map]
+
+    today = timezone.localdate()
+    upcoming_dates = []
+    for offset in range(1, 15):
+        d = today + datetime.timedelta(days=offset)
+        if d.weekday() in day_indices:
+            upcoming_dates.append(d)
+
+    initial_date = upcoming_dates[0] if upcoming_dates else (today + datetime.timedelta(days=1))
+
+    return {
+        'faculty_slots': active_slots,
+        'day_indices': day_indices,
+        'faculty_days_names': faculty_days_names,
+        'upcoming_dates': upcoming_dates,
+        'initial_date': initial_date,
+    }
+
 @login_required
 def book_faculty_view(request, faculty_id):
     """
@@ -25,6 +61,7 @@ def book_faculty_view(request, faculty_id):
         return redirect('directory:faculty_list')
 
     faculty = get_object_or_404(FacultyProfile.objects.select_related('user', 'department'), id=faculty_id)
+    schedule_info = get_faculty_schedule_info(faculty)
 
     if request.method == 'POST':
         form = BookingCreateForm(request.POST)
@@ -52,16 +89,22 @@ def book_faculty_view(request, faculty_id):
             except ValidationError as e:
                 form.add_error(None, e.message)
     else:
-        form = BookingCreateForm()
+        form = BookingCreateForm(initial={'date': schedule_info['initial_date']})
 
-    today_str = timezone.localdate().strftime('%Y-%m-%d')
-    max_date_str = (timezone.localdate() + datetime.timedelta(days=14)).strftime('%Y-%m-%d')
+    today = timezone.localdate()
+    today_str = today.strftime('%Y-%m-%d')
+    max_date_str = (today + datetime.timedelta(days=14)).strftime('%Y-%m-%d')
+    initial_date_str = schedule_info['initial_date'].strftime('%Y-%m-%d')
 
     return render(request, 'bookings/book_slot.html', {
         'faculty': faculty,
         'form': form,
         'today_str': today_str,
         'max_date_str': max_date_str,
+        'initial_date_str': initial_date_str,
+        'faculty_slots': schedule_info['faculty_slots'],
+        'faculty_days_names': schedule_info['faculty_days_names'],
+        'upcoming_dates': schedule_info['upcoming_dates'],
     })
 
 @login_required
@@ -84,11 +127,15 @@ def htmx_get_slots(request, faculty_id):
     if query_date < today:
         return HttpResponse("<div class='alert alert-warning text-sm'>Cannot book consultation dates in the past.</div>")
 
+    schedule_info = get_faculty_schedule_info(faculty)
     slots = get_available_slots_for_date(faculty, query_date)
 
     return render(request, 'bookings/partials/slot_picker.html', {
         'slots': slots,
         'query_date': query_date,
+        'faculty': faculty,
+        'faculty_days_names': schedule_info['faculty_days_names'],
+        'upcoming_dates': schedule_info['upcoming_dates'],
     })
 
 @login_required

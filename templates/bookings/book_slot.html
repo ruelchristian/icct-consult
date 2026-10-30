@@ -6,10 +6,30 @@
 <div class="max-w-2xl mx-auto my-4 sm:my-6 px-2 sm:px-0">
     <div class="card bg-white shadow-xl border border-slate-200">
         <div class="card-body p-5 sm:p-8">
-            <div class="mb-6 border-b border-slate-100 pb-4">
+            <div class="mb-4 border-b border-slate-100 pb-4">
                 <span class="badge badge-warning text-xs font-bold text-icct-navy uppercase">Step 2: Request Consultation</span>
                 <h1 class="text-2xl font-bold text-icct-navy mt-1">Book Session with {{ faculty.user.get_full_name }}</h1>
                 <p class="text-xs text-slate-500">{{ faculty.department.name }} · {{ faculty.office_location|default:"Faculty Office" }}</p>
+            </div>
+
+            <!-- Faculty Active Weekly Consultation Hours Banner -->
+            <div class="mb-5 p-3.5 bg-blue-50/80 border border-blue-200 rounded-2xl">
+                <div class="flex items-center gap-2 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-icct-navy shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span class="text-xs font-bold text-icct-navy uppercase">Prof. {{ faculty.user.last_name }}'s Published Consultation Hours:</span>
+                </div>
+                <div class="flex flex-wrap gap-1.5">
+                    {% for slot in faculty_slots %}
+                        <span class="badge badge-sm bg-white border border-slate-300 text-slate-800 font-semibold py-1">
+                            {{ slot.get_day_of_week_display }}: {{ slot.start_time|time:"h:i A" }} - {{ slot.end_time|time:"h:i A" }}
+                            <span class="text-[10px] text-icct-blue ml-1 font-bold">({{ slot.get_mode_display }})</span>
+                        </span>
+                    {% empty %}
+                        <span class="text-xs text-slate-500 italic">No published consultation hours found for this faculty member.</span>
+                    {% endfor %}
+                </div>
             </div>
 
             {% if form.non_field_errors %}
@@ -30,33 +50,61 @@
                     {{ form.category }}
                 </div>
 
-                <!-- 2. Date Picker (with htmx trigger) -->
+                <!-- 2. Date Picker (with quick date chips & htmx trigger) -->
                 <div>
-                    <label class="label text-xs font-bold text-slate-700 uppercase">Consultation Date</label>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="label text-xs font-bold text-slate-700 uppercase p-0">Consultation Date</label>
+                        {% if faculty_days_names %}
+                            <span class="text-[11px] text-icct-blue font-semibold">Available days: {{ faculty_days_names|join:", " }}</span>
+                        {% endif %}
+                    </div>
+
+                    {% if upcoming_dates %}
+                        <div class="mb-2">
+                            <span class="text-[11px] text-slate-500 font-medium block mb-1">⚡ Quick Pick Next Available Dates:</span>
+                            <div class="flex flex-wrap gap-1.5" id="date-pills-container">
+                                {% for d in upcoming_dates|slice:":6" %}
+                                    <button type="button"
+                                            onclick="selectDate('{{ d|date:'Y-m-d' }}')"
+                                            data-date="{{ d|date:'Y-m-d' }}"
+                                            class="date-pill btn btn-xs {% if forloop.first %}bg-icct-navy text-white{% else %}btn-outline border-slate-300 text-slate-700 bg-white{% endif %} hover:bg-icct-navy hover:text-white transition">
+                                        📅 {{ d|date:"D, M d" }}
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
                     <input type="date" name="date" id="id_date"
                            min="{{ today_str }}" max="{{ max_date_str }}"
+                           value="{{ initial_date_str }}"
                            class="input input-bordered w-full bg-white text-slate-900 border-slate-300 focus:bg-white focus:text-slate-900 focus:border-icct-navy"
                            hx-get="{% url 'bookings:htmx_slots' faculty.id %}"
                            hx-target="#available-slots-container"
-                           hx-trigger="change, load"
+                           hx-trigger="load, change, input"
+                           hx-include="this"
                            hx-indicator="#loading-indicator"
+                           onchange="syncActivePill(this.value)"
                            required />
                     {% if form.date.errors %}
                         <p class="text-xs text-error mt-1">{{ form.date.errors.0 }}</p>
                     {% endif %}
+                    <p class="text-[11px] text-slate-400 mt-1">
+                        Click any quick date above or choose a {% if faculty_days_names %}{{ faculty_days_names|join:" or " }}{% else %}date{% endif %} on the calendar.
+                    </p>
                 </div>
 
                 <!-- 3. Available Time Slots container loaded by htmx -->
-                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl relative min-h-[100px]">
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl relative min-h-[120px]">
                     <div id="loading-indicator" class="htmx-indicator pointer-events-none absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center rounded-2xl z-10 transition-opacity">
                         <span class="loading loading-spinner text-icct-navy"></span>
                     </div>
                     <div id="available-slots-container">
-                        <p class="text-xs text-slate-500">Pick a date above to load available time slots for Prof. {{ faculty.user.last_name }}.</p>
+                        <p class="text-xs text-slate-500">Loading available time slots for Prof. {{ faculty.user.last_name }}...</p>
                     </div>
                 </div>
                 {% if form.time_slot.errors %}
-                    <p class="text-xs text-error">{{ form.time_slot.errors.0 }}</p>
+                    <p class="text-xs text-error font-semibold">{{ form.time_slot.errors.0 }}</p>
                 {% endif %}
 
                 <!-- 4. Mode Selection -->
@@ -84,4 +132,28 @@
         </div>
     </div>
 </div>
+
+<script>
+function selectDate(dateStr) {
+    const el = document.getElementById('id_date');
+    if (!el) return;
+    el.value = dateStr;
+    syncActivePill(dateStr);
+    if (window.htmx) {
+        htmx.trigger(el, 'change');
+    }
+}
+
+function syncActivePill(dateStr) {
+    document.querySelectorAll('.date-pill').forEach(btn => {
+        if (btn.getAttribute('data-date') === dateStr) {
+            btn.classList.add('bg-icct-navy', 'text-white');
+            btn.classList.remove('btn-outline', 'text-slate-700', 'bg-white');
+        } else {
+            btn.classList.remove('bg-icct-navy', 'text-white');
+            btn.classList.add('btn-outline', 'text-slate-700', 'bg-white');
+        }
+    });
+}
+</script>
 {% endblock %}

@@ -20,11 +20,23 @@
             <div class="card-body p-6">
                 <h2 class="card-title text-base font-bold text-icct-navy mb-4">Add Consultation Time Slot</h2>
 
+                {% if form.non_field_errors %}
+                    <div class="alert alert-error text-white text-xs mb-3 p-3">
+                        {% for err in form.non_field_errors %}<p>{{ err }}</p>{% endfor %}
+                    </div>
+                {% endif %}
+
                 <form method="post" class="space-y-3">
                     {% csrf_token %}
                     <div>
-                        <label class="label text-xs font-bold text-slate-700">Day of the Week</label>
+                        <div class="flex items-center justify-between">
+                            <label class="label text-xs font-bold text-slate-700">Day or Quick Preset</label>
+                            <span class="text-[10px] text-icct-blue font-semibold">⚡ Presets available</span>
+                        </div>
                         {{ form.day_of_week }}
+                        {% if form.day_of_week.errors %}
+                            <p class="text-xs text-error mt-1">{{ form.day_of_week.errors.0 }}</p>
+                        {% endif %}
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -52,11 +64,15 @@
                     </div>
 
                     <div>
-                        <label class="label text-xs font-bold text-slate-700">Room / Office or Meeting URL</label>
+                        <label class="label text-xs font-bold text-slate-700" id="location-label">Room / Office or Meeting URL</label>
                         {{ form.location_or_link }}
+                        {% if form.location_or_link.errors %}
+                            <p class="text-xs text-error mt-1 font-semibold">{{ form.location_or_link.errors.0 }}</p>
+                        {% endif %}
+                        <p class="text-[11px] text-slate-400 mt-1" id="location-help-text">For Online consultations, a valid Google Meet or Zoom link is strictly required.</p>
                     </div>
 
-                    <button type="submit" class="btn bg-icct-navy text-white hover:bg-icct-blue w-full font-bold mt-2">
+                    <button type="submit" class="btn bg-icct-navy text-white hover:bg-icct-blue w-full font-bold mt-2 shadow">
                         Add Consultation Slot
                     </button>
                 </form>
@@ -142,4 +158,38 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modeSelect = document.getElementById('id_mode');
+    const locInput = document.getElementById('id_location_or_link');
+    const locLabel = document.getElementById('location-label');
+    const locHelp = document.getElementById('location-help-text');
+
+    function syncMode() {
+        if (!modeSelect || !locInput) return;
+        if (modeSelect.value === 'ONLINE') {
+            locLabel.innerHTML = 'Virtual Meeting Link <span class="text-error font-bold">* (Required)</span>';
+            locInput.placeholder = 'e.g. https://meet.google.com/abc-defg-hij';
+            locInput.required = true;
+            if (locHelp) locHelp.innerHTML = '<span class="text-error font-semibold">⚠️ A valid Google Meet or Zoom URL starting with https:// is required for online mode.</span>';
+        } else if (modeSelect.value === 'F2F') {
+            locLabel.innerHTML = 'Campus Office / Room Location <span class="text-slate-400 font-normal">(Optional)</span>';
+            locInput.placeholder = 'e.g. CCS Faculty Room 302';
+            locInput.required = false;
+            if (locHelp) locHelp.innerHTML = 'Leave blank to use your default department office room.';
+        } else {
+            locLabel.innerHTML = 'Office Room & Meeting Link';
+            locInput.placeholder = 'e.g. Room 302 or https://meet.google.com/abc-defg-hij';
+            locInput.required = false;
+            if (locHelp) locHelp.innerHTML = 'Specify physical location or meeting link.';
+        }
+    }
+
+    if (modeSelect) {
+        modeSelect.addEventListener('change', syncMode);
+        syncMode();
+    }
+});
+</script>
 {% endblock %}
