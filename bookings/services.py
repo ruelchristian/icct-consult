@@ -90,10 +90,12 @@ def create_booking(student, faculty, category, date, start_time, end_time, mode=
     """
     Atomically creates a booking request after validating limits and slot availability.
     """
-    # 1. Enforce student max active bookings limit
+    # 1. Enforce student max active bookings limit (only upcoming pending or confirmed count)
+    today = timezone.localdate()
     active_count = Booking.objects.filter(
         student=student,
-        status__in=[Booking.Status.PENDING, Booking.Status.CONFIRMED]
+        status__in=[Booking.Status.PENDING, Booking.Status.CONFIRMED],
+        date__gte=today
     ).count()
 
     if active_count >= MAX_ACTIVE_BOOKINGS_PER_STUDENT:
@@ -102,7 +104,6 @@ def create_booking(student, faculty, category, date, start_time, end_time, mode=
         )
 
     # 2. Date validation: must be today or future
-    today = timezone.localdate()
     if date < today:
         raise ValidationError("Cannot book consultations in the past.")
 

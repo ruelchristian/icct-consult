@@ -166,6 +166,9 @@ class Command(BaseCommand):
         today = timezone.localdate()
         next_week = today + datetime.timedelta(days=2)
 
+        # Clear existing demo bookings so redeployments never accumulate duplicates
+        Booking.objects.filter(student__in=[juan_profile, maria_profile]).delete()
+
         # A confirmed booking
         booking_confirmed, _ = Booking.objects.get_or_create(
             student=juan_profile,

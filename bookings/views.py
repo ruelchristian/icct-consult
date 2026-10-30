@@ -95,6 +95,11 @@ def book_faculty_view(request, faculty_id):
     today_str = today.strftime('%Y-%m-%d')
     max_date_str = (today + datetime.timedelta(days=14)).strftime('%Y-%m-%d')
     initial_date_str = schedule_info['initial_date'].strftime('%Y-%m-%d')
+    active_bookings_count = Booking.objects.filter(
+        student=student,
+        status__in=[Booking.Status.PENDING, Booking.Status.CONFIRMED],
+        date__gte=today
+    ).count() if student else 0
 
     return render(request, 'bookings/book_slot.html', {
         'faculty': faculty,
@@ -105,6 +110,8 @@ def book_faculty_view(request, faculty_id):
         'faculty_slots': schedule_info['faculty_slots'],
         'faculty_days_names': schedule_info['faculty_days_names'],
         'upcoming_dates': schedule_info['upcoming_dates'],
+        'active_bookings_count': active_bookings_count,
+        'max_active_bookings': 2,
     })
 
 @login_required
