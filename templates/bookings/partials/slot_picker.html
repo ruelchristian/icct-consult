@@ -1,35 +1,41 @@
-<div class="space-y-3">
+<div class="space-y-3"
+     id="slot-picker-root"
+     data-total-open="{{ total_open_count }}"
+     data-online-open="{{ online_open_count }}"
+     data-f2f-open="{{ f2f_open_count }}">
     <!-- Header with slot count and quick mode filter pills -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-200">
-        <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-slate-700 uppercase">Consultation Slots for {{ query_date|date:"D, M d" }}</span>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-200">
+        <div class="flex flex-wrap items-center gap-1.5 min-w-0">
+            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide">Slots &bull; {{ query_date|date:"D, M d" }}</span>
             {% if slots %}
-                <span id="slot-visible-count" class="badge badge-success text-white badge-xs font-bold">{{ slots|length }} open</span>
+                <span id="slot-visible-count" class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 whitespace-nowrap shadow-xs">
+                    {{ total_open_count }} Open
+                </span>
             {% endif %}
         </div>
         
         {% if slots %}
         <!-- Filter Tabs: All | Virtual Only | In-Person Only -->
-        <div class="inline-flex rounded-lg p-0.5 bg-slate-200 text-xs self-start sm:self-auto gap-0.5" role="group">
+        <div class="inline-flex rounded-lg p-0.5 bg-slate-200 text-xs self-start sm:self-auto gap-0.5 max-w-full overflow-x-auto" role="group">
             <button type="button"
                     onclick="setSlotFilter('ALL')"
                     id="slot-filter-ALL"
-                    class="slot-filter-btn px-2.5 py-1 rounded-md font-bold text-[11px] bg-white text-slate-900 shadow-sm transition">
-                All ({{ slots|length }})
+                    class="slot-filter-btn px-2.5 py-1 rounded-md font-bold text-[11px] bg-white text-slate-900 shadow-sm transition whitespace-nowrap">
+                All <span class="tab-count font-bold">({{ total_open_count }})</span>
             </button>
             <button type="button"
                     onclick="setSlotFilter('ONLINE')"
                     id="slot-filter-ONLINE"
-                    {% if not faculty_has_online %}disabled{% endif %}
-                    class="slot-filter-btn px-2.5 py-1 rounded-md font-medium text-[11px] text-slate-600 hover:text-slate-900 transition flex items-center gap-1 {% if not faculty_has_online %}opacity-40 cursor-not-allowed{% endif %}">
-                <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span> 💻 Virtual
+                    {% if not faculty_has_online or online_open_count == 0 %}disabled title="No virtual slots open on this date"{% endif %}
+                    class="slot-filter-btn px-2.5 py-1 rounded-md font-medium text-[11px] text-slate-600 hover:text-slate-900 transition flex items-center gap-1 whitespace-nowrap {% if not faculty_has_online or online_open_count == 0 %}opacity-40 cursor-not-allowed{% endif %}">
+                <span class="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0"></span> 💻 Virtual <span class="tab-count font-semibold">({{ online_open_count }})</span>
             </button>
             <button type="button"
                     onclick="setSlotFilter('F2F')"
                     id="slot-filter-F2F"
-                    {% if not faculty_has_f2f %}disabled{% endif %}
-                    class="slot-filter-btn px-2.5 py-1 rounded-md font-medium text-[11px] text-slate-600 hover:text-slate-900 transition flex items-center gap-1 {% if not faculty_has_f2f %}opacity-40 cursor-not-allowed{% endif %}">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> 🏢 In-Person
+                    {% if not faculty_has_f2f or f2f_open_count == 0 %}disabled title="No in-person slots open on this date"{% endif %}
+                    class="slot-filter-btn px-2.5 py-1 rounded-md font-medium text-[11px] text-slate-600 hover:text-slate-900 transition flex items-center gap-1 whitespace-nowrap {% if not faculty_has_f2f or f2f_open_count == 0 %}opacity-40 cursor-not-allowed{% endif %}">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span> 🏢 In-Person <span class="tab-count font-semibold">({{ f2f_open_count }})</span>
             </button>
         </div>
         {% endif %}
@@ -39,7 +45,7 @@
         <div id="slots-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {% for slot in slots %}
                 {% if slot.is_available %}
-                    <label class="slot-card cursor-pointer" 
+                    <label class="slot-card cursor-pointer block min-w-0" 
                            data-mode="{{ slot.mode }}"
                            onclick="handleSlotClick(this)">
                         <input type="radio" name="slot_choice" 
@@ -47,25 +53,26 @@
                                data-mode="{{ slot.mode }}"
                                class="peer sr-only" 
                                onchange="handleSlotChange(this)" />
-                        <div class="p-3 border border-slate-300 bg-white text-slate-800 rounded-xl text-center transition peer-checked:border-icct-navy peer-checked:bg-icct-navy peer-checked:text-white peer-checked:ring-2 peer-checked:ring-icct-yellow hover:border-slate-400 shadow-sm">
-                            <div class="text-sm font-bold">{{ slot.start_time|time:"h:i A" }}</div>
-                            <div class="text-xs opacity-90">{{ slot.end_time|time:"h:i A" }}</div>
-                            <div class="text-[10px] uppercase font-bold mt-1 opacity-90 flex items-center justify-center gap-1">
+                        <div class="p-2 sm:p-2.5 border border-slate-300 bg-white text-slate-800 rounded-xl text-center transition peer-checked:border-icct-navy peer-checked:bg-icct-navy peer-checked:text-white peer-checked:ring-2 peer-checked:ring-icct-yellow hover:border-slate-400 shadow-sm overflow-hidden">
+                            <div class="text-sm font-bold truncate">{{ slot.start_time|time:"h:i A" }}</div>
+                            <div class="text-xs opacity-90 truncate">{{ slot.end_time|time:"h:i A" }}</div>
+                            <div class="text-[10px] uppercase font-bold mt-1 opacity-90 flex items-center justify-center gap-1 truncate">
                                 {% if slot.mode == 'ONLINE' %}
-                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-sky-400"></span> Virtual
+                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-sky-400 shrink-0"></span> <span class="truncate">Virtual</span>
                                 {% elif slot.mode == 'F2F' %}
-                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-400"></span> In-Person
+                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span> <span class="truncate">In-Person</span>
                                 {% else %}
-                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Hybrid
+                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span> <span class="truncate">Hybrid</span>
                                 {% endif %}
                             </div>
                         </div>
                     </label>
                 {% else %}
-                    <div class="slot-card p-3 border border-slate-200 bg-slate-100 rounded-xl text-center text-slate-400 opacity-60 cursor-not-allowed"
+                    <div class="slot-card p-2 sm:p-2.5 border border-slate-200 bg-slate-100 rounded-xl text-center text-slate-400 opacity-60 cursor-not-allowed overflow-hidden min-w-0"
                          data-mode="{{ slot.mode }}">
-                        <div class="text-sm font-medium line-through">{{ slot.start_time|time:"h:i A" }}</div>
-                        <div class="text-[10px] uppercase mt-1 font-bold">Booked</div>
+                        <div class="text-sm font-medium line-through truncate">{{ slot.start_time|time:"h:i A" }}</div>
+                        <div class="text-xs opacity-90 truncate">{{ slot.end_time|time:"h:i A" }}</div>
+                        <div class="text-[10px] uppercase mt-1 font-bold truncate">Booked</div>
                     </div>
                 {% endif %}
             {% endfor %}

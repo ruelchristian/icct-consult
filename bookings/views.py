@@ -180,6 +180,10 @@ def htmx_get_slots(request, faculty_id):
     schedule_info = get_faculty_schedule_info(faculty)
     slots = get_available_slots_for_date(faculty, query_date)
 
+    total_open_count = sum(1 for s in slots if s.get('is_available'))
+    online_open_count = sum(1 for s in slots if s.get('is_available') and s.get('mode') in [AvailabilitySlot.Mode.ONLINE, AvailabilitySlot.Mode.HYBRID])
+    f2f_open_count = sum(1 for s in slots if s.get('is_available') and s.get('mode') in [AvailabilitySlot.Mode.FACE_TO_FACE, AvailabilitySlot.Mode.HYBRID])
+
     return render(request, 'bookings/partials/slot_picker.html', {
         'slots': slots,
         'query_date': query_date,
@@ -188,6 +192,9 @@ def htmx_get_slots(request, faculty_id):
         'upcoming_dates': schedule_info['upcoming_dates'],
         'faculty_has_online': schedule_info['faculty_has_online'],
         'faculty_has_f2f': schedule_info['faculty_has_f2f'],
+        'total_open_count': total_open_count,
+        'online_open_count': online_open_count,
+        'f2f_open_count': f2f_open_count,
     })
 
 @login_required

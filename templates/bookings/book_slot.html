@@ -66,32 +66,32 @@
                 <!-- 2. Early Format Filter -->
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
-                        <label class="label text-xs font-bold text-slate-700 uppercase p-0">2. Preferred Consultation Format</label>
+                        <label class="label text-xs font-bold text-slate-700 uppercase p-0">2. Preferred Format</label>
                         <span class="text-[11px] text-slate-500 font-medium">Filter slots & dates</span>
                     </div>
-                    <div class="grid grid-cols-3 gap-2">
+                    <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
                         <button type="button"
                                 onclick="setSlotFilter('ALL')"
                                 id="global-filter-ALL"
-                                class="global-filter-btn p-2.5 rounded-xl border border-icct-navy bg-icct-navy text-white text-center font-bold text-xs transition shadow-sm flex flex-col items-center justify-center gap-0.5">
-                            <span>🌐 All Formats</span>
-                            <span class="filter-desc text-[10px] font-normal text-white/80">Show all slots</span>
+                                class="global-filter-btn p-2 sm:p-2.5 rounded-xl border border-icct-navy bg-icct-navy text-white text-center font-bold text-xs transition shadow-sm flex flex-col items-center justify-center gap-0.5 overflow-hidden">
+                            <span class="truncate w-full">🌐 All</span>
+                            <span id="global-count-ALL" class="filter-desc text-[10px] font-normal text-white/80 truncate w-full">All Slots</span>
                         </button>
                         <button type="button"
                                 onclick="setSlotFilter('ONLINE')"
                                 id="global-filter-ONLINE"
                                 {% if not faculty_has_online %}disabled title="Prof. does not offer online slots"{% endif %}
-                                class="global-filter-btn p-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-center font-semibold text-xs hover:border-sky-500 transition shadow-sm flex flex-col items-center justify-center gap-0.5 {% if not faculty_has_online %}opacity-40 cursor-not-allowed{% endif %}">
-                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span> 💻 Virtual Only</span>
-                            <span class="filter-desc text-[10px] font-normal text-slate-500">Google Meet</span>
+                                class="global-filter-btn p-2 sm:p-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-center font-semibold text-xs hover:border-sky-500 transition shadow-sm flex flex-col items-center justify-center gap-0.5 overflow-hidden {% if not faculty_has_online %}opacity-40 cursor-not-allowed{% endif %}">
+                            <span class="truncate w-full flex items-center justify-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0"></span> 💻 Virtual</span>
+                            <span id="global-count-ONLINE" class="filter-desc text-[10px] font-normal text-slate-500 truncate w-full">Google Meet</span>
                         </button>
                         <button type="button"
                                 onclick="setSlotFilter('F2F')"
                                 id="global-filter-F2F"
                                 {% if not faculty_has_f2f %}disabled title="Prof. does not offer in-person slots"{% endif %}
-                                class="global-filter-btn p-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-center font-semibold text-xs hover:border-amber-500 transition shadow-sm flex flex-col items-center justify-center gap-0.5 {% if not faculty_has_f2f %}opacity-40 cursor-not-allowed{% endif %}">
-                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> 🏢 In-Person Only</span>
-                            <span class="filter-desc text-[10px] font-normal text-slate-500">Campus Office</span>
+                                class="global-filter-btn p-2 sm:p-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-center font-semibold text-xs hover:border-amber-500 transition shadow-sm flex flex-col items-center justify-center gap-0.5 overflow-hidden {% if not faculty_has_f2f %}opacity-40 cursor-not-allowed{% endif %}">
+                            <span class="truncate w-full flex items-center justify-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span> 🏢 In-Person</span>
+                            <span id="global-count-F2F" class="filter-desc text-[10px] font-normal text-slate-500 truncate w-full">Campus Office</span>
                         </button>
                     </div>
                 </div>
@@ -315,15 +315,30 @@ function applySlotsDisplay() {
 
     if (countBadge) {
         if (filter === 'ONLINE') {
-            countBadge.innerText = `${availableCount} virtual open`;
-            countBadge.className = 'badge badge-info text-white badge-xs font-bold';
+            countBadge.innerText = `${availableCount} Virtual Open`;
+            countBadge.className = 'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800 border border-sky-200 whitespace-nowrap shadow-xs';
         } else if (filter === 'F2F') {
-            countBadge.innerText = `${availableCount} in-person open`;
-            countBadge.className = 'badge badge-secondary text-icct-navy badge-xs font-bold';
+            countBadge.innerText = `${availableCount} In-Person Open`;
+            countBadge.className = 'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-200 whitespace-nowrap shadow-xs';
         } else {
-            countBadge.innerText = `${availableCount} open`;
-            countBadge.className = 'badge badge-success text-white badge-xs font-bold';
+            countBadge.innerText = `${availableCount} Open`;
+            countBadge.className = 'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 whitespace-nowrap shadow-xs';
         }
+    }
+
+    // Sync counts on the Step 2 format cards from the loaded slots data attributes
+    const pickerRoot = document.getElementById('slot-picker-root');
+    if (pickerRoot) {
+        const totalOpen = pickerRoot.getAttribute('data-total-open') || availableCount;
+        const onlineOpen = pickerRoot.getAttribute('data-online-open') || '0';
+        const f2fOpen = pickerRoot.getAttribute('data-f2f-open') || '0';
+
+        const gAll = document.getElementById('global-count-ALL');
+        const gOnline = document.getElementById('global-count-ONLINE');
+        const gF2F = document.getElementById('global-count-F2F');
+        if (gAll) gAll.innerText = `${totalOpen} slots`;
+        if (gOnline) gOnline.innerText = `${onlineOpen} open`;
+        if (gF2F) gF2F.innerText = `${f2fOpen} open`;
     }
 
     if (visibleCount === 0) {
