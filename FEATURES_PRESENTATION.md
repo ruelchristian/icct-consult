@@ -1,103 +1,59 @@
-# ICCT Faculty Consultation System
-## Complete Features Presentation (5 Minutes)
+# System Features (5-Minute Presentation)
 
-> **Goal:** Present all system features in simple, easy-to-understand English in under 5 minutes.
+## 1. Student Features
 
----
-
-## ⏱️ 5-Minute Features Breakdown
-
-```
-[00:00 - 00:45]  Part 1: General System Features (Mobile, PWA & Speed)
-[00:45 - 02:15]  Part 2: All Student Features (From Search to Booking)
-[02:15 - 03:45]  Part 3: All Teacher Features (From Schedule to Notes)
-[03:45 - 04:30]  Part 4: Admin, Reporting & Security Features
-[04:30 - 05:00]  Part 5: Quick Summary & Live Demo
-```
-
----
-
-## Part 1: General & Platform Features (45 Seconds)
-
-### What to say:
-> "Good day! Today I will walk you through all the features built into the **ICCT Faculty Consultation and Scheduling System**.
-> 
-> Let's start with our **General Platform Features**:
-> - **Installable Phone App (PWA):** Students and teachers can install the website directly to their Android or iPhone home screen with one tap.
-> - **Offline Support:** If your mobile data drops, a custom offline page appears instead of a broken browser error.
-> - **100% Mobile Friendly:** Designed to fit all screens with zero horizontal scrolling.
-> - **Live Notifications:** An alert bell shows unread counts whenever a booking changes status.
-> - **Password Visibility Eye:** Users can click the eye icon to check their password before signing in."
+- **Account Registration:** Register using Student ID, Course, Year Level, Section, and Password.
+- **Faculty Search:** Search professors by name or filter by department.
+- **Weekly Calendar:** View professor's consultation schedule on an interactive calendar.
+- **Live Slot Picker:** Pick a date to load open 30-minute time slots instantly (no page refresh).
+- **Anti Double-Booking:** Automatic database lock prevents two students from picking the same slot.
+- **Mode Selection:** Choose Face-to-Face (shows office room) or Online (shows Google Meet link).
+- **Consultation Categories:** Select topic (Capstone, Subject Clarification, Grades, Counseling).
+- **Booking History:** Track request status in real time (Pending, Confirmed, Completed, Cancelled).
+- **View Advice:** Read written advice, feedback, and action items left by the professor.
+- **Cancel Request:** Cancel pending or confirmed appointments before the session starts.
+- **Student Privacy:** Private teacher notes are completely hidden from students.
 
 ---
 
-## Part 2: Student Features (1 Minute 30 Seconds)
+## 2. Teacher (Faculty) Features
 
-### What to say:
-> "Now, let us look at all the features made for **Students**:
-> 
-> 1. **Fast Self-Registration:** Students create an account using their Student ID, Course, Year Level, and Section.
-> 2. **Faculty Directory & Search:** Students can search any professor by name or filter by department (like Computer Studies or Business).
-> 3. **Weekly Calendar View:** Full calendar shows when professors have open consultation hours.
-> 4. **Live Time Slot Picker (HTMX):** When a student picks a date, available 30-minute time blocks load instantly without refreshing the page.
-> 5. **Anti Double-Booking:** Slots that are already taken are blocked automatically so two students can never book the same time.
-> 6. **Meeting Mode Choice:** Students can choose **Face-to-Face** (shows the professor's office room) or **Online** (shows the Google Meet link).
-> 7. **Categorized Bookings:** Students select what they need help with (Capstone Advising, Subject Clarification, Grades, or Academic Counseling).
-> 8. **My Consultations History:** Students can track their status in real time: *Pending*, *Confirmed*, *Completed*, or *Cancelled*.
-> 9. **Read Faculty Advice:** After the meeting, students can open the record to read the professor's advice and action items.
-> 10. **Student Privacy Protection:** Private teacher notes are completely hidden from students."
+- **Weekly Hours Manager:** Add or delete recurring weekly consultation blocks (Day, Time, Mode, Location/Link).
+- **Advising Dashboard:** View today's meetings and pending requests immediately after sign-in.
+- **1-Click Review & Accept:** Review student details and purpose, then accept with one click.
+- **Decline Request:** Decline requests with a required reason sent to the student.
+- **Attendance Tracking:** Mark student outcome as **Attended** or **No-Show**.
+- **Document Advice:** Write recommendations and action items visible to the student.
+- **Confidential Internal Notes:** Private notes section visible only to professors and department heads.
+- **Consultation Archive:** Search, sort, and review past student consultations.
+- **Profile Settings:** Update room location, Google Meet link, and bio.
 
 ---
 
-## Part 3: Teacher / Faculty Features (1 Minute 30 Seconds)
+## 3. General & Platform Features
 
-### What to say:
-> "Next are the features built for **Teachers and Professors**:
-> 
-> 1. **Weekly Availability Manager:** Teachers can add or delete their recurring weekly consultation blocks (Day, Time range, Duration, Mode, Room or Meet link).
-> 2. **Dashboard Overview:** Shows today's meetings and high-priority pending requests right when they log in.
-> 3. **1-Click Review & Accept:** Teachers can read student concerns and approve requests with one button.
-> 4. **Decline with Reason:** If a teacher is unavailable, they can decline with a short explanatory note.
-> 5. **Attendance Tracking:** Mark the session as **Attended** or **No-Show** for official records.
-> 6. **Post-Session Advice Form:** Teachers record the guidance and action items that the student can view.
-> 7. **Confidential Internal Notes:** A private notes box for teachers to write internal observations that students can never see.
-> 8. **Consultation Records Archive:** Search and filter all past consultations by student name or status."
+- **Installable PWA:** Install directly to Android, iPhone, or Desktop like a native app.
+- **Offline Support:** Custom offline page appears if internet connection drops.
+- **Mobile Responsive:** Clean layout with zero horizontal overflow on small phone screens (360px+).
+- **Live Notifications:** Bell icon with unread count badge for real-time status updates.
+- **Password Eye Toggle:** Show or hide password characters on login.
+- **Clean Theme:** DaisyUI and Tailwind CSS using official ICCT colors.
 
 ---
 
-## Part 4: Admin, Reporting & Security Features (45 Seconds)
+## 4. Admin & Reporting Features
 
-### What to say:
-> "For **Department Heads and Deans**:
-> - **Department Analytics:** Real-time counters showing total bookings, completed meetings, and no-show rates.
-> - **1-Click Official PDF Report:** Generates and downloads an official ICCT consultation report for school audits and accreditation.
-> - **Strict Role Security (RBAC):** Students cannot view other students' records or access faculty admin tools.
-> - **Safe Data Transactions:** Database locking prevents slot conflicts during high-traffic registration periods."
+- **Department Analytics:** Real-time metrics for total bookings, completed sessions, and no-shows.
+- **Official PDF Export:** 1-click download of official ICCT consultation summary report.
+- **Role-Based Access (RBAC):** Strict security boundaries between Student, Faculty, and Admin.
+- **Transaction Safety:** ACID-compliant database locking prevents scheduling conflicts.
 
 ---
 
-## Part 5: Summary & Demo Accounts (30 Seconds)
+## 5. Live Demo Accounts
 
-### What to say:
-> "In short, the system connects students and teachers seamlessly with zero paper forms and zero wasted time.
-> 
-> Everything is fully tested and live on Render. I am happy to show any of these features right now!"
-
----
-
-## 📋 Features Quick Summary Table
-
-| Category | Key Features Included |
-| :--- | :--- |
-| **General** | Mobile PWA, Offline Page, Live Notification Badges, Password Eye Toggle |
-| **Student** | Account Registration, Teacher Search, Live HTMX Slot Picker, F2F/Online Mode, Advice Viewer |
-| **Teacher** | Weekly Hours Manager, 1-Click Accept/Decline, Attendance Tracker, Confidential Notes |
-| **Admin** | Real-time KPI Dashboard, Official Consultation PDF Export, Role-Based Security |
-
----
-
-## 🔑 Demo Login Accounts
-
-- **Student:** `student_juan` / `student123`
-- **Teacher:** `prof_turing` / `faculty123`
-- **Admin:** `admin` / `admin123`
+| Role | Username | Password |
+| :--- | :--- | :--- |
+| **Student** | `student_juan` | `student123` |
+| **Faculty** | `prof_turing` | `faculty123` |
+| **Admin** | `admin` | `admin123` |
