@@ -126,6 +126,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Optimized Password Hasher for fast cloud authentication (Render / production)
+PASSWORD_HASHERS = [
+    'accounts.hashers.OptimizedPBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]
+
 # Authentication URLs
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'core:home'

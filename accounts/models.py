@@ -9,7 +9,13 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.STUDENT)
     phone_number = models.CharField(max_length=20, blank=True)
-    school_id = models.CharField(max_length=50, blank=True, help_text="Student Number or Employee ID")
+    school_id = models.CharField(max_length=50, blank=True, db_index=True, help_text="Student Number or Employee ID")
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['school_id'], name='user_school_id_idx'),
+            models.Index(fields=['email'], name='user_email_idx'),
+        ]
 
     @property
     def is_student(self):

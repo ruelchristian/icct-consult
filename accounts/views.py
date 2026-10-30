@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q
 from .models import User
 from directory.models import Department, StudentProfile, FacultyProfile
 from .forms import LoginForm, StudentRegistrationForm, UserProfileForm
@@ -16,16 +17,14 @@ def login_view(request):
             username_or_email = form.cleaned_data['username_or_email']
             password = form.cleaned_data['password']
 
-            # Lookup by username, school email, or school ID
+            # Fast indexed lookup by username, school email, or school ID in a single query
             user = None
             try:
                 user_obj = User.objects.filter(
-                    username__iexact=username_or_email
-                ).first() or User.objects.filter(
-                    email__iexact=username_or_email
-                ).first() or User.objects.filter(
-                    school_id__iexact=username_or_email
-                ).first()
+                    Q(username__iexact=username_or_email) |
+                    Q(email__iexact=username_or_email) |
+                    Q(school_id__iexact=username_or_email)
+                ).select_related('student_profile', 'faculty_profile').first()
 
                 if user_obj and user_obj.check_password(password):
                     user = user_obj
