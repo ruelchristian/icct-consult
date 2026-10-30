@@ -5,7 +5,7 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {% for slot in slots %}
                 {% if slot.is_available %}
-                    <label class="cursor-pointer">
+                    <label class="cursor-pointer" onclick="const r = this.querySelector('input[type=radio]'); if(r){ r.checked = true; document.getElementById('id_time_slot').value = r.value; }">
                         <input type="radio" name="slot_choice" 
                                value="{{ slot.start_time|time:'H:i' }}-{{ slot.end_time|time:'H:i' }}" 
                                class="peer sr-only" 

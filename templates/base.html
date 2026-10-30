@@ -62,7 +62,8 @@
     </script>
 
     <!-- htmx for dynamic slot updates without full page reloads -->
-    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYwy421hrEJvCP57293hP4rsac26N9l68388VriZ/pch562s32vNanZRF7T" crossorigin="anonymous"></script>
+    <script src="{% static 'js/htmx.min.js' %}"></script>
+    <script>window.htmx || document.write('<script src="https://unpkg.com/htmx.org@1.9.12/dist/htmx.min.js"><\/script>')</script>
 
     <!-- FullCalendar -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
@@ -86,6 +87,18 @@
         h1, h2, h3, h4, h5, h6, .brand-font {
             font-family: 'Raleway', sans-serif;
             font-weight: 700;
+        }
+
+        /* HTMX Indicator overlay styling */
+        .htmx-indicator {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 150ms ease-in-out;
+        }
+        .htmx-request .htmx-indicator,
+        .htmx-request.htmx-indicator {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         /* ------------------------------------------------------------- */
