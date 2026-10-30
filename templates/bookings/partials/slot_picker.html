@@ -1,16 +1,47 @@
 <div class="space-y-3">
-    <div class="flex items-center justify-between">
-        <span class="text-xs font-bold text-slate-700 uppercase">Available Time Slots for {{ query_date|date:"l, F d, Y" }}</span>
+    <!-- Header with slot count and quick mode filter pills -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-200">
+        <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-700 uppercase">Consultation Slots for {{ query_date|date:"D, M d" }}</span>
+            {% if slots %}
+                <span id="slot-visible-count" class="badge badge-success text-white badge-xs font-bold">{{ slots|length }} open</span>
+            {% endif %}
+        </div>
+        
         {% if slots %}
-            <span class="badge badge-success text-white badge-xs font-bold">{{ slots|length }} open</span>
+        <!-- Filter Tabs: All | Virtual Only | In-Person Only -->
+        <div class="inline-flex rounded-lg p-0.5 bg-slate-200 text-xs self-start sm:self-auto gap-0.5" role="group">
+            <button type="button"
+                    onclick="setSlotFilter('ALL')"
+                    id="slot-filter-ALL"
+                    class="slot-filter-btn px-2.5 py-1 rounded-md font-bold text-[11px] bg-white text-slate-900 shadow-sm transition">
+                All ({{ slots|length }})
+            </button>
+            <button type="button"
+                    onclick="setSlotFilter('ONLINE')"
+                    id="slot-filter-ONLINE"
+                    {% if not faculty_has_online %}disabled{% endif %}
+                    class="slot-filter-btn px-2.5 py-1 rounded-md font-medium text-[11px] text-slate-600 hover:text-slate-900 transition flex items-center gap-1 {% if not faculty_has_online %}opacity-40 cursor-not-allowed{% endif %}">
+                <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span> 💻 Virtual
+            </button>
+            <button type="button"
+                    onclick="setSlotFilter('F2F')"
+                    id="slot-filter-F2F"
+                    {% if not faculty_has_f2f %}disabled{% endif %}
+                    class="slot-filter-btn px-2.5 py-1 rounded-md font-medium text-[11px] text-slate-600 hover:text-slate-900 transition flex items-center gap-1 {% if not faculty_has_f2f %}opacity-40 cursor-not-allowed{% endif %}">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> 🏢 In-Person
+            </button>
+        </div>
         {% endif %}
     </div>
     
     {% if slots %}
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div id="slots-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {% for slot in slots %}
                 {% if slot.is_available %}
-                    <label class="cursor-pointer" onclick="handleSlotClick(this)">
+                    <label class="slot-card cursor-pointer" 
+                           data-mode="{{ slot.mode }}"
+                           onclick="handleSlotClick(this)">
                         <input type="radio" name="slot_choice" 
                                value="{{ slot.start_time|time:'H:i' }}-{{ slot.end_time|time:'H:i' }}" 
                                data-mode="{{ slot.mode }}"
@@ -31,13 +62,25 @@
                         </div>
                     </label>
                 {% else %}
-                    <div class="p-3 border border-slate-200 bg-slate-100 rounded-xl text-center text-slate-400 opacity-60 cursor-not-allowed">
+                    <div class="slot-card p-3 border border-slate-200 bg-slate-100 rounded-xl text-center text-slate-400 opacity-60 cursor-not-allowed"
+                         data-mode="{{ slot.mode }}">
                         <div class="text-sm font-medium line-through">{{ slot.start_time|time:"h:i A" }}</div>
                         <div class="text-[10px] uppercase mt-1 font-bold">Booked</div>
                     </div>
                 {% endif %}
             {% endfor %}
         </div>
+
+        <!-- Filter Empty State Message (shown if current filter hides all slots on this date) -->
+        <div id="filter-empty-state" class="hidden p-4 bg-sky-50 border border-sky-200 rounded-xl text-sky-950 text-center space-y-2">
+            <p id="filter-empty-message" class="text-xs font-semibold text-sky-900"></p>
+            <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+                <button type="button" onclick="setSlotFilter('ALL')" class="btn btn-xs bg-icct-navy text-white hover:bg-slate-800">
+                    Show All Available Slots Instead
+                </button>
+            </div>
+        </div>
+
         <p class="text-xs text-slate-500 italic mt-1">* Click a time block above to select your preferred consultation schedule.</p>
     {% else %}
         <div class="p-4 bg-amber-50 border border-amber-300 rounded-2xl text-amber-900 space-y-2">
@@ -58,8 +101,8 @@
                     <span class="text-xs font-bold text-amber-950 block mb-1.5">⚡ Jump to Prof. {{ faculty.user.last_name }}'s next available dates:</span>
                     <div class="flex flex-wrap gap-1.5">
                         {% for d in upcoming_dates|slice:":4" %}
-                            <button type="button" onclick="selectDate('{{ d|date:'Y-m-d' }}')" class="btn btn-xs bg-icct-navy text-white hover:bg-icct-blue">
-                                📅 {{ d|date:"D, M d" }} &rarr;
+                            <button type="button" onclick="selectDate('{{ d.date_str }}')" class="btn btn-xs bg-icct-navy text-white hover:bg-icct-blue">
+                                📅 {{ d.day_name }}, {{ d.short_str }} ({{ d.mode_label }}) &rarr;
                             </button>
                         {% endfor %}
                     </div>

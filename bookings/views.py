@@ -9,11 +9,12 @@ from .models import Booking
 from .forms import BookingCreateForm, ActionReasonForm
 from .services import create_booking, update_booking_status, get_available_slots_for_date
 from directory.models import FacultyProfile, StudentProfile
+from availability.models import AvailabilitySlot
 
 def get_faculty_schedule_info(faculty):
     """
     Helper returning active slots, active day numbers, day names,
-    and upcoming available dates for the next 14 days.
+    faculty format capabilities, and upcoming available dates for the next 14 days.
     """
     active_slots = faculty.availability_slots.filter(is_active=True).order_by('day_of_week', 'start_time')
     day_indices = list(dict.fromkeys(active_slots.values_list('day_of_week', flat=True)))
@@ -29,14 +30,52 @@ def get_faculty_schedule_info(faculty):
     }
     faculty_days_names = [day_names_map[d] for d in day_indices if d in day_names_map]
 
+    # Map each day_of_week to the set of modes available
+    day_modes_map = {}
+    for slot in active_slots:
+        day_modes_map.setdefault(slot.day_of_week, set()).add(slot.mode)
+
+    all_modes = set(active_slots.values_list('mode', flat=True))
+    faculty_has_online = (
+        AvailabilitySlot.Mode.ONLINE in all_modes or 
+        AvailabilitySlot.Mode.HYBRID in all_modes
+    )
+    faculty_has_f2f = (
+        AvailabilitySlot.Mode.FACE_TO_FACE in all_modes or 
+        AvailabilitySlot.Mode.HYBRID in all_modes
+    )
+
     today = timezone.localdate()
     upcoming_dates = []
     for offset in range(1, 15):
         d = today + datetime.timedelta(days=offset)
-        if d.weekday() in day_indices:
-            upcoming_dates.append(d)
+        w = d.weekday()
+        if w in day_indices:
+            modes = day_modes_map.get(w, set())
+            has_online = AvailabilitySlot.Mode.ONLINE in modes or AvailabilitySlot.Mode.HYBRID in modes
+            has_f2f = AvailabilitySlot.Mode.FACE_TO_FACE in modes or AvailabilitySlot.Mode.HYBRID in modes
+            if has_online and has_f2f:
+                mode_label = "F2F & Virtual"
+                badge_class = "badge-ghost"
+            elif has_online:
+                mode_label = "Virtual"
+                badge_class = "badge-info text-white"
+            else:
+                mode_label = "In-Person"
+                badge_class = "badge-secondary text-icct-navy"
 
-    initial_date = upcoming_dates[0] if upcoming_dates else (today + datetime.timedelta(days=1))
+            upcoming_dates.append({
+                'date': d,
+                'date_str': d.strftime('%Y-%m-%d'),
+                'day_name': d.strftime('%a'),
+                'short_str': d.strftime('%b %d'),
+                'has_online': has_online,
+                'has_f2f': has_f2f,
+                'mode_label': mode_label,
+                'badge_class': badge_class,
+            })
+
+    initial_date = upcoming_dates[0]['date'] if upcoming_dates else (today + datetime.timedelta(days=1))
 
     return {
         'faculty_slots': active_slots,
@@ -44,6 +83,8 @@ def get_faculty_schedule_info(faculty):
         'faculty_days_names': faculty_days_names,
         'upcoming_dates': upcoming_dates,
         'initial_date': initial_date,
+        'faculty_has_online': faculty_has_online,
+        'faculty_has_f2f': faculty_has_f2f,
     }
 
 @login_required
@@ -110,6 +151,8 @@ def book_faculty_view(request, faculty_id):
         'faculty_slots': schedule_info['faculty_slots'],
         'faculty_days_names': schedule_info['faculty_days_names'],
         'upcoming_dates': schedule_info['upcoming_dates'],
+        'faculty_has_online': schedule_info['faculty_has_online'],
+        'faculty_has_f2f': schedule_info['faculty_has_f2f'],
         'active_bookings_count': active_bookings_count,
         'max_active_bookings': 2,
     })
@@ -143,6 +186,8 @@ def htmx_get_slots(request, faculty_id):
         'faculty': faculty,
         'faculty_days_names': schedule_info['faculty_days_names'],
         'upcoming_dates': schedule_info['upcoming_dates'],
+        'faculty_has_online': schedule_info['faculty_has_online'],
+        'faculty_has_f2f': schedule_info['faculty_has_f2f'],
     })
 
 @login_required

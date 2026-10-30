@@ -59,14 +59,47 @@
 
                 <!-- 1. Consultation Category -->
                 <div>
-                    <label class="label text-xs font-bold text-slate-700 uppercase">Consultation Category</label>
+                    <label class="label text-xs font-bold text-slate-700 uppercase">1. Consultation Category</label>
                     {{ form.category }}
                 </div>
 
-                <!-- 2. Date Picker (with quick date chips & htmx trigger) -->
+                <!-- 2. Early Format Filter -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="label text-xs font-bold text-slate-700 uppercase p-0">2. Preferred Consultation Format</label>
+                        <span class="text-[11px] text-slate-500 font-medium">Filter slots & dates</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button"
+                                onclick="setSlotFilter('ALL')"
+                                id="global-filter-ALL"
+                                class="global-filter-btn p-2.5 rounded-xl border border-icct-navy bg-icct-navy text-white text-center font-bold text-xs transition shadow-sm flex flex-col items-center justify-center gap-0.5">
+                            <span>🌐 All Formats</span>
+                            <span class="filter-desc text-[10px] font-normal text-white/80">Show all slots</span>
+                        </button>
+                        <button type="button"
+                                onclick="setSlotFilter('ONLINE')"
+                                id="global-filter-ONLINE"
+                                {% if not faculty_has_online %}disabled title="Prof. does not offer online slots"{% endif %}
+                                class="global-filter-btn p-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-center font-semibold text-xs hover:border-sky-500 transition shadow-sm flex flex-col items-center justify-center gap-0.5 {% if not faculty_has_online %}opacity-40 cursor-not-allowed{% endif %}">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span> 💻 Virtual Only</span>
+                            <span class="filter-desc text-[10px] font-normal text-slate-500">Google Meet</span>
+                        </button>
+                        <button type="button"
+                                onclick="setSlotFilter('F2F')"
+                                id="global-filter-F2F"
+                                {% if not faculty_has_f2f %}disabled title="Prof. does not offer in-person slots"{% endif %}
+                                class="global-filter-btn p-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-center font-semibold text-xs hover:border-amber-500 transition shadow-sm flex flex-col items-center justify-center gap-0.5 {% if not faculty_has_f2f %}opacity-40 cursor-not-allowed{% endif %}">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> 🏢 In-Person Only</span>
+                            <span class="filter-desc text-[10px] font-normal text-slate-500">Campus Office</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Date Picker (with quick date chips & htmx trigger) -->
                 <div>
                     <div class="flex items-center justify-between mb-1">
-                        <label class="label text-xs font-bold text-slate-700 uppercase p-0">Consultation Date</label>
+                        <label class="label text-xs font-bold text-slate-700 uppercase p-0">3. Consultation Date</label>
                         {% if faculty_days_names %}
                             <span class="text-[11px] text-icct-blue font-semibold">Available days: {{ faculty_days_names|join:", " }}</span>
                         {% endif %}
@@ -78,10 +111,13 @@
                             <div class="flex flex-wrap gap-1.5" id="date-pills-container">
                                 {% for d in upcoming_dates|slice:":6" %}
                                     <button type="button"
-                                            onclick="selectDate('{{ d|date:'Y-m-d' }}')"
-                                            data-date="{{ d|date:'Y-m-d' }}"
-                                            class="date-pill btn btn-xs {% if forloop.first %}bg-icct-navy text-white{% else %}btn-outline border-slate-300 text-slate-700 bg-white{% endif %} hover:bg-icct-navy hover:text-white transition">
-                                        📅 {{ d|date:"D, M d" }}
+                                            onclick="selectDate('{{ d.date_str }}')"
+                                            data-date="{{ d.date_str }}"
+                                            data-has-online="{{ d.has_online|yesno:'true,false' }}"
+                                            data-has-f2f="{{ d.has_f2f|yesno:'true,false' }}"
+                                            class="date-pill btn btn-xs {% if forloop.first %}bg-icct-navy text-white{% else %}btn-outline border-slate-300 text-slate-700 bg-white{% endif %} hover:bg-icct-navy hover:text-white transition flex items-center gap-1">
+                                        📅 {{ d.day_name }}, {{ d.short_str }}
+                                        <span class="badge badge-xs {{ d.badge_class }} text-[9px]">{{ d.mode_label }}</span>
                                     </button>
                                 {% endfor %}
                             </div>
@@ -107,7 +143,7 @@
                     </p>
                 </div>
 
-                <!-- 3. Available Time Slots container loaded by htmx -->
+                <!-- 4. Available Time Slots container loaded by htmx -->
                 <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl relative min-h-[120px]">
                     <div id="loading-indicator" class="htmx-indicator pointer-events-none absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center rounded-2xl z-10 transition-opacity">
                         <span class="loading loading-spinner text-icct-navy"></span>
@@ -120,19 +156,19 @@
                     <p class="text-xs text-error font-semibold">{{ form.time_slot.errors.0 }}</p>
                 {% endif %}
 
-                <!-- 4. Mode Selection -->
+                <!-- 5. Mode Selection -->
                 <div>
                     <div class="flex items-center justify-between mb-1">
-                        <label class="label text-xs font-bold text-slate-700 uppercase p-0">Meeting Mode</label>
+                        <label class="label text-xs font-bold text-slate-700 uppercase p-0">5. Meeting Mode</label>
                         <span id="mode-badge" class="badge badge-sm badge-ghost text-[10px] font-bold">Auto-syncs with selected slot</span>
                     </div>
                     {{ form.mode }}
                     <p id="mode-help-text" class="text-[11px] text-slate-400 mt-1">Select a consultation slot above to automatically match the professor's schedule mode.</p>
                 </div>
 
-                <!-- 5. Reason & Concerns -->
+                <!-- 6. Reason & Concerns -->
                 <div>
-                    <label class="label text-xs font-bold text-slate-700 uppercase">Purpose of Consultation</label>
+                    <label class="label text-xs font-bold text-slate-700 uppercase">6. Purpose of Consultation</label>
                     {{ form.reason }}
                     {% if form.reason.errors %}
                         <p class="text-xs text-error mt-1">{{ form.reason.errors.0 }}</p>
@@ -151,6 +187,8 @@
 </div>
 
 <script>
+window.activeSlotFilter = 'ALL';
+
 function selectDate(dateStr) {
     const el = document.getElementById('id_date');
     if (!el) return;
@@ -171,6 +209,139 @@ function syncActivePill(dateStr) {
             btn.classList.add('btn-outline', 'text-slate-700', 'bg-white');
         }
     });
+}
+
+function setSlotFilter(filterMode) {
+    window.activeSlotFilter = filterMode;
+
+    // 1. Update Global Filter button styles
+    ['ALL', 'ONLINE', 'F2F'].forEach(m => {
+        const btn = document.getElementById(`global-filter-${m}`);
+        if (!btn) return;
+        if (m === filterMode) {
+            btn.className = 'global-filter-btn p-2.5 rounded-xl border border-icct-navy bg-icct-navy text-white text-center font-bold text-xs transition shadow-sm flex flex-col items-center justify-center gap-0.5';
+            const desc = btn.querySelector('.filter-desc');
+            if (desc) desc.className = 'filter-desc text-[10px] font-normal text-white/80';
+        } else {
+            const isOnline = m === 'ONLINE';
+            const hoverBorder = isOnline ? 'hover:border-sky-500' : (m === 'F2F' ? 'hover:border-amber-500' : 'hover:border-slate-400');
+            btn.className = `global-filter-btn p-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-center font-semibold text-xs ${hoverBorder} transition shadow-sm flex flex-col items-center justify-center gap-0.5`;
+            const desc = btn.querySelector('.filter-desc');
+            if (desc) desc.className = 'filter-desc text-[10px] font-normal text-slate-500';
+        }
+    });
+
+    // 2. Dim/un-dim quick date pills based on mode compatibility
+    document.querySelectorAll('.date-pill').forEach(pill => {
+        const hasOnline = pill.getAttribute('data-has-online') === 'true';
+        const hasF2F = pill.getAttribute('data-has-f2f') === 'true';
+        if (filterMode === 'ONLINE' && !hasOnline) {
+            pill.classList.add('opacity-40');
+        } else if (filterMode === 'F2F' && !hasF2F) {
+            pill.classList.add('opacity-40');
+        } else {
+            pill.classList.remove('opacity-40');
+        }
+    });
+
+    // 3. Update the slot-picker local tab styling
+    ['ALL', 'ONLINE', 'F2F'].forEach(m => {
+        const btn = document.getElementById(`slot-filter-${m}`);
+        if (!btn) return;
+        if (m === filterMode) {
+            btn.className = 'slot-filter-btn px-2.5 py-1 rounded-md font-bold text-[11px] bg-white text-slate-900 shadow-sm transition flex items-center gap-1';
+        } else {
+            btn.className = 'slot-filter-btn px-2.5 py-1 rounded-md font-medium text-[11px] text-slate-600 hover:text-slate-900 transition flex items-center gap-1';
+        }
+    });
+
+    // 4. Apply filter to visible slot cards
+    applySlotsDisplay();
+
+    // 5. Sync the form mode select if specific mode picked
+    const modeSelect = document.querySelector('select[name="mode"]');
+    if (modeSelect) {
+        if (filterMode === 'ONLINE') {
+            modeSelect.value = 'ONLINE';
+            applySlotMode('ONLINE');
+        } else if (filterMode === 'F2F') {
+            modeSelect.value = 'F2F';
+            applySlotMode('F2F');
+        }
+    }
+}
+
+function applySlotsDisplay() {
+    const filter = window.activeSlotFilter || 'ALL';
+    const slotCards = document.querySelectorAll('.slot-card');
+    const emptyState = document.getElementById('filter-empty-state');
+    const emptyMsg = document.getElementById('filter-empty-message');
+    const countBadge = document.getElementById('slot-visible-count');
+    const slotsGrid = document.getElementById('slots-grid');
+
+    if (!slotCards.length) return;
+
+    let visibleCount = 0;
+    let availableCount = 0;
+
+    slotCards.forEach(card => {
+        const cardMode = card.getAttribute('data-mode'); // 'ONLINE', 'F2F', or 'HYBRID'
+        let match = false;
+        if (filter === 'ALL') {
+            match = true;
+        } else if (filter === 'ONLINE') {
+            match = (cardMode === 'ONLINE' || cardMode === 'HYBRID');
+        } else if (filter === 'F2F') {
+            match = (cardMode === 'F2F' || cardMode === 'HYBRID');
+        }
+
+        if (match) {
+            card.style.display = '';
+            visibleCount++;
+            if (card.querySelector('input[type=radio]')) {
+                availableCount++;
+            }
+        } else {
+            card.style.display = 'none';
+            // If the card was checked and is now filtered out, uncheck it
+            const radio = card.querySelector('input[type=radio]');
+            if (radio && radio.checked) {
+                radio.checked = false;
+                const timeInput = document.getElementById('id_time_slot');
+                if (timeInput) timeInput.value = '';
+            }
+        }
+    });
+
+    if (countBadge) {
+        if (filter === 'ONLINE') {
+            countBadge.innerText = `${availableCount} virtual open`;
+            countBadge.className = 'badge badge-info text-white badge-xs font-bold';
+        } else if (filter === 'F2F') {
+            countBadge.innerText = `${availableCount} in-person open`;
+            countBadge.className = 'badge badge-secondary text-icct-navy badge-xs font-bold';
+        } else {
+            countBadge.innerText = `${availableCount} open`;
+            countBadge.className = 'badge badge-success text-white badge-xs font-bold';
+        }
+    }
+
+    if (visibleCount === 0) {
+        if (slotsGrid) slotsGrid.classList.add('hidden');
+        if (emptyState) {
+            emptyState.classList.remove('hidden');
+            if (emptyMsg) {
+                if (filter === 'ONLINE') {
+                    emptyMsg.innerHTML = '⚠️ <b>No Virtual consultation slots on this date.</b> Prof. only holds In-Person consultations today. You can pick another date above or switch to All Slots.';
+                } else if (filter === 'F2F') {
+                    emptyMsg.innerHTML = '⚠️ <b>No In-Person consultation slots on this date.</b> Prof. only holds Virtual consultations today. You can pick another date above or switch to All Slots.';
+                }
+            }
+        }
+    } else {
+        if (slotsGrid) slotsGrid.classList.remove('hidden');
+        if (emptyState) emptyState.classList.add('hidden');
+    }
 }
 
 function handleSlotChange(radio) {
@@ -232,5 +403,34 @@ function applySlotMode(slotMode) {
         }
     }
 }
+
+// Listen to HTMX afterSwap to reapply active filter to freshly loaded slots
+document.body.addEventListener('htmx:afterSwap', function(evt) {
+    if (evt.detail.target.id === 'available-slots-container') {
+        const filter = window.activeSlotFilter || 'ALL';
+        ['ALL', 'ONLINE', 'F2F'].forEach(m => {
+            const btn = document.getElementById(`slot-filter-${m}`);
+            if (!btn) return;
+            if (m === filter) {
+                btn.className = 'slot-filter-btn px-2.5 py-1 rounded-md font-bold text-[11px] bg-white text-slate-900 shadow-sm transition flex items-center gap-1';
+            } else {
+                btn.className = 'slot-filter-btn px-2.5 py-1 rounded-md font-medium text-[11px] text-slate-600 hover:text-slate-900 transition flex items-center gap-1';
+            }
+        });
+        applySlotsDisplay();
+    }
+});
+
+// Sync dropdown changes in Section 5 with filter
+document.addEventListener('DOMContentLoaded', function() {
+    const modeSelect = document.querySelector('select[name="mode"]');
+    if (modeSelect) {
+        modeSelect.addEventListener('change', function() {
+            if (this.value === 'ONLINE' || this.value === 'F2F') {
+                setSlotFilter(this.value);
+            }
+        });
+    }
+});
 </script>
 {% endblock %}

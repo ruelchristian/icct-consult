@@ -7,7 +7,9 @@ from directory.models import Department, Category, FacultyProfile, StudentProfil
 from availability.models import AvailabilitySlot
 from bookings.models import Booking
 from bookings.services import create_booking, update_booking_status, check_slot_conflict
+from django.urls import reverse
 from records.models import SessionRecord
+from bookings.views import get_faculty_schedule_info
 
 class BookingWorkflowTests(TestCase):
     def setUp(self):
@@ -125,3 +127,61 @@ class BookingWorkflowTests(TestCase):
         # Invalid transition: COMPLETED cannot go back to PENDING
         with self.assertRaises(ValidationError):
             update_booking_status(booking.id, Booking.Status.PENDING, self.f_user)
+
+    def test_faculty_schedule_info_detects_modes_and_upcoming_dates(self):
+        # Add an online slot on Wednesday (2) and an F2F slot on Monday (0)
+        AvailabilitySlot.objects.create(
+            faculty=self.faculty,
+            day_of_week=0, # Monday
+            start_time=datetime.time(9, 0),
+            end_time=datetime.time(11, 0),
+            mode=AvailabilitySlot.Mode.FACE_TO_FACE,
+            is_active=True
+        )
+        AvailabilitySlot.objects.create(
+            faculty=self.faculty,
+            day_of_week=2, # Wednesday
+            start_time=datetime.time(13, 0),
+            end_time=datetime.time(15, 0),
+            mode=AvailabilitySlot.Mode.ONLINE,
+            location_or_link="https://meet.google.com/test-xyz",
+            is_active=True
+        )
+
+        schedule_info = get_faculty_schedule_info(self.faculty)
+        self.assertTrue(schedule_info['faculty_has_online'])
+        self.assertTrue(schedule_info['faculty_has_f2f'])
+        self.assertIn('Monday', schedule_info['faculty_days_names'])
+        self.assertIn('Wednesday', schedule_info['faculty_days_names'])
+        self.assertGreater(len(schedule_info['upcoming_dates']), 0)
+
+        # Check upcoming date mode attributes
+        for d in schedule_info['upcoming_dates']:
+            if d['date'].weekday() == 0:
+                self.assertTrue(d['has_f2f'])
+                self.assertFalse(d['has_online'])
+                self.assertEqual(d['mode_label'], 'In-Person')
+            elif d['date'].weekday() == 2:
+                self.assertTrue(d['has_online'])
+                self.assertFalse(d['has_f2f'])
+                self.assertEqual(d['mode_label'], 'Virtual')
+
+    def test_slot_picker_htmx_contains_filter_buttons_and_data_modes(self):
+        AvailabilitySlot.objects.create(
+            faculty=self.faculty,
+            day_of_week=self.tomorrow.weekday(),
+            start_time=datetime.time(10, 0),
+            end_time=datetime.time(11, 0),
+            mode=AvailabilitySlot.Mode.ONLINE,
+            location_or_link="https://meet.google.com/test-abc",
+            is_active=True
+        )
+        self.client.force_login(self.s1_user)
+        url = reverse('bookings:htmx_slots', kwargs={'faculty_id': self.faculty.id})
+        response = self.client.get(f"{url}?date={self.tomorrow.strftime('%Y-%m-%d')}")
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode('utf-8')
+        self.assertIn('slot-filter-ONLINE', content)
+        self.assertIn('slot-filter-F2F', content)
+        self.assertIn('data-mode="ONLINE"', content)
+
