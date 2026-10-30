@@ -7,7 +7,8 @@
 - **Weekly Schedule Banner & Quick Dates:** Shows professor's active consultation days with 1-click quick date buttons.
 - **Live Automatic Slot Loading:** Pre-loads available slots immediately on page load and date change (no page refresh).
 - **Anti Double-Booking:** Automatic database lock prevents two students from picking the same slot.
-- **Mode Selection:** Choose Face-to-Face (shows office room) or Online (shows Google Meet link).
+- **Consultation Format Filter:** 1-click early filter to show only Virtual (Google Meet) or only In-Person (Campus Office) slots.
+- **Auto-Sync Mode Lock:** Automatically locks booking mode to match the professor's published slot schedule.
 - **Consultation Categories:** Select topic (Capstone, Subject Clarification, Grades, Counseling).
 - **Booking History:** Track request status in real time (Pending, Confirmed, Completed, Cancelled).
 - **View Advice:** Read written advice, feedback, and action items left by the professor.
