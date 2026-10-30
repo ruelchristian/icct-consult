@@ -111,11 +111,32 @@ def create_booking(student, faculty, category, date, start_time, end_time, mode=
     if check_slot_conflict(faculty, date, start_time, end_time):
         raise ValidationError("This consultation slot has already been taken or has a pending request.")
 
-    # 4. Resolve default mode and location if not provided
-    if not mode:
-        mode = Booking.Mode.FACE_TO_FACE
-    if not location_or_link:
-        location_or_link = faculty.office_location if mode == Booking.Mode.FACE_TO_FACE else faculty.consultation_room_link
+    # 4. Enforce mode and location according to the professor's published slot schedule
+    weekday = date.weekday()
+    schedule_slot = AvailabilitySlot.objects.filter(
+        faculty=faculty,
+        day_of_week=weekday,
+        start_time__lte=start_time,
+        end_time__gte=end_time,
+        is_active=True
+    ).first()
+
+    if schedule_slot:
+        if schedule_slot.mode == AvailabilitySlot.Mode.ONLINE:
+            mode = Booking.Mode.ONLINE
+            location_or_link = schedule_slot.location_or_link or faculty.consultation_room_link
+        elif schedule_slot.mode == AvailabilitySlot.Mode.FACE_TO_FACE:
+            mode = Booking.Mode.FACE_TO_FACE
+            location_or_link = schedule_slot.location_or_link or faculty.office_location or "Department Faculty Office"
+        elif schedule_slot.mode == AvailabilitySlot.Mode.HYBRID:
+            if not mode:
+                mode = Booking.Mode.FACE_TO_FACE
+            location_or_link = schedule_slot.location_or_link if mode == Booking.Mode.ONLINE else (faculty.office_location or "Department Faculty Office")
+    else:
+        if not mode:
+            mode = Booking.Mode.FACE_TO_FACE
+        if not location_or_link:
+            location_or_link = faculty.office_location if mode == Booking.Mode.FACE_TO_FACE else faculty.consultation_room_link
 
     # 5. Create booking in PENDING state
     booking = Booking.objects.create(

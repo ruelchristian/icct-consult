@@ -122,8 +122,12 @@
 
                 <!-- 4. Mode Selection -->
                 <div>
-                    <label class="label text-xs font-bold text-slate-700 uppercase">Preferred Meeting Mode</label>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="label text-xs font-bold text-slate-700 uppercase p-0">Meeting Mode</label>
+                        <span id="mode-badge" class="badge badge-sm badge-ghost text-[10px] font-bold">Auto-syncs with selected slot</span>
+                    </div>
                     {{ form.mode }}
+                    <p id="mode-help-text" class="text-[11px] text-slate-400 mt-1">Select a consultation slot above to automatically match the professor's schedule mode.</p>
                 </div>
 
                 <!-- 5. Reason & Concerns -->
@@ -167,6 +171,66 @@ function syncActivePill(dateStr) {
             btn.classList.add('btn-outline', 'text-slate-700', 'bg-white');
         }
     });
+}
+
+function handleSlotChange(radio) {
+    if (!radio) return;
+    const timeVal = radio.value;
+    document.getElementById('id_time_slot').value = timeVal;
+    const mode = radio.getAttribute('data-mode'); // 'ONLINE', 'F2F', or 'HYBRID'
+    applySlotMode(mode);
+}
+
+function handleSlotClick(labelEl) {
+    const radio = labelEl.querySelector('input[type=radio]');
+    if (radio) {
+        radio.checked = true;
+        handleSlotChange(radio);
+    }
+}
+
+function applySlotMode(slotMode) {
+    const modeSelect = document.querySelector('select[name="mode"]');
+    const modeBadge = document.getElementById('mode-badge');
+    const modeHelp = document.getElementById('mode-help-text');
+    if (!modeSelect) return;
+
+    const optF2F = modeSelect.querySelector('option[value="F2F"]');
+    const optOnline = modeSelect.querySelector('option[value="ONLINE"]');
+
+    if (slotMode === 'ONLINE') {
+        modeSelect.value = 'ONLINE';
+        if (optF2F) optF2F.disabled = true;
+        if (optOnline) optOnline.disabled = false;
+        if (modeBadge) {
+            modeBadge.className = 'badge badge-sm badge-info text-white text-[10px] font-bold';
+            modeBadge.innerText = '🔒 Locked to Online (Virtual)';
+        }
+        if (modeHelp) {
+            modeHelp.innerHTML = '<span class="text-icct-blue font-semibold">ℹ️ Prof. holds this consultation online via Google Meet.</span>';
+        }
+    } else if (slotMode === 'F2F') {
+        modeSelect.value = 'F2F';
+        if (optF2F) optF2F.disabled = false;
+        if (optOnline) optOnline.disabled = true;
+        if (modeBadge) {
+            modeBadge.className = 'badge badge-sm badge-secondary text-icct-navy text-[10px] font-bold';
+            modeBadge.innerText = '🔒 Locked to Face-to-Face';
+        }
+        if (modeHelp) {
+            modeHelp.innerHTML = '<span class="text-slate-600 font-semibold">ℹ️ Prof. holds this consultation in-person at their campus office.</span>';
+        }
+    } else { // HYBRID
+        if (optF2F) optF2F.disabled = false;
+        if (optOnline) optOnline.disabled = false;
+        if (modeBadge) {
+            modeBadge.className = 'badge badge-sm badge-success text-white text-[10px] font-bold';
+            modeBadge.innerText = '✨ Flexible: Choose Face-to-Face or Online';
+        }
+        if (modeHelp) {
+            modeHelp.innerHTML = 'Prof. is flexible during this slot. You can choose whether to meet in person or virtually.';
+        }
+    }
 }
 </script>
 {% endblock %}
